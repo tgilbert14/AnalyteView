@@ -57,11 +57,11 @@ ui <- dashboardPage(skin = 'blue',
                                         collapsible = T,
                                         collapsed = F,
                                         solidHeader = F,
-                                        height='650',
+                                        height='550',
                                         width='12',
                                         column(12,withSpinner(plotlyOutput('Dlab'), image = 'https://i.pinimg.com/originals/52/53/35/52533552584f2c81e63ee15a2f4ee468.gif', image.height = '800px', image.width = '1200px'),
                                                
-                                               style='height:500px;overflow-y:scroll'
+                                               style='height:400px;overflow-y:scroll'
                                         )
                                     ),
  
@@ -71,11 +71,11 @@ ui <- dashboardPage(skin = 'blue',
                               collapsible = T,
                               collapsed = F,
                               solidHeader = F,
-                              height='650',
+                              height='450',
                               width='12',
                               column(12,withSpinner(verbatimTextOutput('Pvalue'), image = 'https://media.giphy.com/media/yGhIqFuOx84KY/source.gif', proxy.height = '50px'),
                                      
-                                     style='height:500px;overflow-y:scroll'
+                                     style='height:300px;overflow-y:scroll'
                               )
                           )
                         )
@@ -84,7 +84,7 @@ ui <- dashboardPage(skin = 'blue',
                 tabItem(tabName = 'dtable',
                         fluidRow(
                           box(title='Data Table',
-                              footer = ' footer... ',
+                              footer = 'Looking at NEON data being analyzed in Analyte Analysis',
                               status = 'info',
                               collapsible = T,
                               collapsed = F,
