@@ -6,6 +6,9 @@ server <- function(input, output, session) {
     site.pick<- input$Select
     req(input$Select)
     
+    #Testing
+    #site.pick<- 'SYCA'
+    
     ##Pulling data form 2018-01 to 2020-04
     D<- ''
     if (nchar(D) == 0) { D<- getwd() }
@@ -91,6 +94,7 @@ server <- function(input, output, session) {
     External.data
   }) #end of data download
   
+
   dis_select <- reactive({
     site.pick<- input$Select
     #adding discharge to graph
@@ -99,7 +103,7 @@ server <- function(input, output, session) {
     d<- data.all$dsc_fieldData
     
   })
-  
+  #parent data- not it use as of now
   P.data<- reactive({
     site.pick<- input$Select
     Parent.data<- read.table(paste0('WaterWorld/',site.pick,'Parent_data.csv'), sep=',')
@@ -107,6 +111,7 @@ server <- function(input, output, session) {
       select(waterTemp, dissolvedOxygen, dissolvedOxygenSaturation, specificConductance, collectDate) %>% 
       arrange(collectDate)
   })  
+  
   #ANC/ALK data from domain data
   D.data<- reactive({
     site.pick<- input$Select
@@ -115,6 +120,7 @@ server <- function(input, output, session) {
       select(ancMeqPerL, alkMeqPerL, collectDate) %>% 
       arrange(collectDate)
   })
+  
   ##Analyte selections
   Analyte_select <- reactive({
     select.analyte<- input$Select_A #saving site selection
@@ -124,8 +130,12 @@ server <- function(input, output, session) {
     select.analyteB<- input$Select_B #saving site selection
     req(input$Select_B)
   }) #end of analyte selections
+
+  #for testing
+  #select.analyte<- 'Discharge-FIELD'
+  #select.analyteB<- 'ANC'
   
-  #Analyte compare plots
+  #Analyte compare plot1
   plotInput <- reactive({
     
     External.data <- site_select()     #pulling from NEON site selection
@@ -188,8 +198,7 @@ server <- function(input, output, session) {
     if (select.analyteB == 'Discharge-FIELD') {
       d.plot<- d.plot%>% add_trace(data=dsc, x=~collectDate,y=~red_dis, yaxis= 'y2', name = 'Discharge (CSF)',colors =  getPalette(colourCount), mode='lines+markers', inherit = F, type='scatter', text=~paste0("Collect Date: ", collectDate, '\n','Discharge- NEON: ',red_dis,'csf'), alpha=.6, 
                                    hoverinfo='text')
-      d.plot+geom_jitter()+geom_smooth(se=FALSE)
-      
+
     }
     if (select.analyte == 'Discharge-FIELD') {
       d.plot<- d.plot%>% add_trace(data=dsc, x=~collectDate,y=~red_dis, yaxis= 'y', name = 'Discharge (CSF)',colors =  getPalette(colourCount), mode='lines+markers', inherit = F, type='scatter', text=~paste0("Collect Date: ", collectDate, '\n','Discharge- NEON: ',red_dis,'csf'), alpha=.6, 
@@ -221,6 +230,7 @@ server <- function(input, output, session) {
     unlink(paste0(D,"/WaterWorld"), recursive = T)
     
     d.plot
+    
   })
   
   
@@ -228,15 +238,197 @@ server <- function(input, output, session) {
     print(plotInput())
   })
   
-  output$Dlab <- renderText({
+
+  #Analyte compare plot2
+  plotInput2 <- reactive({
     
+    External.data <- site_select()     #pulling from NEON site selection
     select.analyte <- Analyte_select()
     select.analyteB <- Analyte_selectB()
     site.pick<- site_select()
+    d<- dis_select()
     
-    paste0('You were comparing ', select.analyte, ' with ',select.analyteB,'! Niceeeeee...')
+    #testing-
+    #select.analyte<- 'Mg'
+    #select.analyteB<- 'Na'
+
+    #External Lab data
+    analyte_data<- External.data %>%
+      filter(analyte == select.analyte) %>%
+      select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
+      mutate(collectDate = substr(collectDate,1,10)) %>% 
+      arrange(collectDate)
     
+    analyte_dataB<- External.data %>%
+      filter(analyte == select.analyteB) %>%
+      select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
+      mutate(collectDate = substr(collectDate,1,10)) %>% 
+      arrange(collectDate)
+    
+    if (select.analyte == 'Discharge-FIELD') {
+      analyte_data<- d %>%
+        mutate(red_dis = totalDischarge*0.0353) %>% 
+        select(red_dis,collectDate) %>%
+        mutate(collectDate = substr(collectDate,1,10)) %>% 
+        arrange(collectDate)
+    }
+    
+    if (select.analyteB == 'Discharge-FIELD') {
+      #Converting from 'lps' to 'cfs' so fits into graph
+      analyte_dataB<- d %>%
+        mutate(red_dis = totalDischarge*0.0353) %>% 
+        select(red_dis,collectDate) %>%
+        mutate(collectDate = substr(collectDate,1,10)) %>% 
+        arrange(collectDate)
+    }
+
+    analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
+
+    if (select.analyte == 'Discharge-FIELD') {
+      
+      sct_base<-ggplot(analytes,aes(y = analyteConcentration,x = red_dis))
+      d.plot<- sct_base+geom_point()+
+        geom_smooth(method = "lm",se = F, color = "Red", show.legend = T, formula = 'y ~ x', na.rm = F)+
+        geom_smooth(color = "Grey", show.legend = T, inherit.aes = T)+
+        theme_classic()+
+        ggtitle(paste0(analytes$analyte[1],' vs Discharge (cfs)'))+
+        xlab('Discharge (cfs)')+
+        ylab(analytes$analyte[1])
+      
+    }
+
+        if (select.analyteB == 'Discharge-FIELD') {
+      
+          sct_base<-ggplot(analytes,aes(y = red_dis,x = analyteConcentration))
+          d.plot<- sct_base+geom_point()+
+            geom_smooth(method = "lm",se = F, color = "Red", show.legend = T, formula = 'y ~ x', na.rm = F)+
+            geom_smooth(color = "Grey", show.legend = T, inherit.aes = T)+
+            theme_classic()+
+            ggtitle(paste0('Discharge (cfs) vs ',analytes$analyte[1]))+
+            xlab(analytes$analyte[1])+
+            ylab('Discharge (cfs)')
+          
+    }
+
+    if (select.analyte != 'Discharge-FIELD' && select.analyteB != 'Discharge-FIELD' ) {
+      
+    sct_base<-ggplot(analytes,aes(y = analyteConcentration.y,x = analyteConcentration.x))
+    d.plot<- sct_base+geom_point()+
+      geom_smooth(method = "lm",se = F, color = "Red", show.legend = T, formula = 'y ~ x', na.rm = F)+
+      geom_smooth(color = "Grey", show.legend = T, inherit.aes = T)+
+      theme_classic()+
+      ggtitle(paste0(analytes$analyte.y[1],' vs ',analytes$analyte.x[1]))+
+      xlab(analytes$analyte.x[1])+
+      ylab(analytes$analyte.y[1])
+    }
+    
+    #anova()
+    #t.test(analytes$analyteConcentration.y,analytes$analyteConcentration.x)
+    
+    d.plot
     
   })
-
+  
+  output$Dlab <- renderPlotly({
+    print(plotInput2())
+  })
+  
+  output$Pvalue <- renderPrint({
+    
+    External.data <- site_select()
+    select.analyte <- Analyte_select()
+    select.analyteB <- Analyte_selectB()
+    site.pick<- site_select()
+    d<- dis_select()
+    
+    analyte_data<- External.data %>%
+      filter(analyte == select.analyte) %>%
+      select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
+      mutate(collectDate = substr(collectDate,1,10)) %>% 
+      arrange(collectDate)
+    
+    analyte_dataB<- External.data %>%
+      filter(analyte == select.analyteB) %>%
+      select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
+      mutate(collectDate = substr(collectDate,1,10)) %>% 
+      arrange(collectDate)
+    
+    if (select.analyte == 'Discharge-FIELD') {
+      analyte_data<- d %>%
+        mutate(red_dis = totalDischarge*0.0353) %>% 
+        select(red_dis,collectDate) %>%
+        mutate(collectDate = substr(collectDate,1,10)) %>% 
+        arrange(collectDate)
+    }
+    
+    if (select.analyteB == 'Discharge-FIELD') {
+      #Converting from 'lps' to 'cfs' so fits into graph
+      analyte_dataB<- d %>%
+        mutate(red_dis = totalDischarge*0.0353) %>% 
+        select(red_dis,collectDate) %>%
+        mutate(collectDate = substr(collectDate,1,10)) %>% 
+        arrange(collectDate)
+    }
+    
+    analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
+    
+    if (select.analyte == 'Discharge-FIELD') {
+      mdl_1<-lm(analyteConcentration ~ red_dis,data = analytes)
+    }
+    
+    if (select.analyteB == 'Discharge-FIELD') {
+      mdl_1<-lm(red_dis ~ analyteConcentration,data = analytes)
+    }
+    
+    if (select.analyte != 'Discharge-FIELD' && select.analyteB != 'Discharge-FIELD' ) {
+      mdl_1<-lm(analyteConcentration.y ~ analyteConcentration.x,data = analytes)
+      }
+    
+    summary(mdl_1)
+    
+  })
+  
+  output$table <- renderDataTable({
+  
+    External.data <- site_select()
+    select.analyte <- Analyte_select()
+    select.analyteB <- Analyte_selectB()
+    site.pick<- site_select()
+    d<- dis_select()
+    
+    analyte_data<- External.data %>%
+      filter(analyte == select.analyte) %>%
+      select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
+      mutate(collectDate = substr(collectDate,1,10)) %>% 
+      arrange(collectDate)
+    
+    analyte_dataB<- External.data %>%
+      filter(analyte == select.analyteB) %>%
+      select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
+      mutate(collectDate = substr(collectDate,1,10)) %>% 
+      arrange(collectDate)
+    
+    if (select.analyte == 'Discharge-FIELD') {
+      analyte_data<- d %>%
+        mutate(red_dis = totalDischarge*0.0353) %>% 
+        select(red_dis,collectDate) %>%
+        mutate(collectDate = substr(collectDate,1,10)) %>% 
+        arrange(collectDate)
+    }
+    
+    if (select.analyteB == 'Discharge-FIELD') {
+      #Converting from 'lps' to 'cfs' so fits into graph
+      analyte_dataB<- d %>%
+        mutate(red_dis = totalDischarge*0.0353) %>% 
+        select(red_dis,collectDate) %>%
+        mutate(collectDate = substr(collectDate,1,10)) %>% 
+        arrange(collectDate)
+    }
+    
+    analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
+    
+analytes
+      
+})
+  
 } #end of server
