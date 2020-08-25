@@ -70,8 +70,8 @@ server <- function(input, output, session) {
   }) #end of analyte selections
 
   #for testing
-  #select.analyte<- 'Mg'
-  #select.analyteB<- 'ANC'
+  #select.analyte<- 'K'
+  #select.analyteB<- 'Mg'
   
   #Analyte compare plot1
   plotInput <- reactive({
@@ -310,9 +310,10 @@ analytes
   
   correlationA<- correlation %>%
     filter(Analyte != select.analyte) %>% 
-    arrange(desc(Concentration))
+    filter(!is.na(Correlation)) %>% 
+    arrange(desc(Correlation))
   
-  correlationA
+  View(correlationA)
     
   })
   
