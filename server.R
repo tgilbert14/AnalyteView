@@ -187,37 +187,32 @@ server <- function(input, output, session) {
     print(plotInput2())
   })
   
-  output$Pvalue <- renderPrint({
+#  output$Pvalue <- renderPrint({
     
-    External.data <- site_select()
-    select.analyte <- Analyte_select()
-    select.analyteB <- Analyte_selectB()
-    site.pick<- site_select()
+#    External.data <- site_select()
+#    select.analyte <- Analyte_select()
+#    select.analyteB <- Analyte_selectB()
+#    site.pick<- site_select()
 
-    analyte_data<- External.data %>%
-      filter(analyte == select.analyte) %>%
-      select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
-      mutate(collectDate = substr(collectDate,1,10)) %>% 
-      arrange(collectDate)
+#    analyte_data<- External.data %>%
+#      filter(analyte == select.analyte) %>%
+#      select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
+#      mutate(collectDate = substr(collectDate,1,10)) %>% 
+#      arrange(collectDate)
     
-    analyte_dataB<- External.data %>%
-      filter(analyte == select.analyteB) %>%
-      select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
-      mutate(collectDate = substr(collectDate,1,10)) %>% 
-      arrange(collectDate)
+#    analyte_dataB<- External.data %>%
+#      filter(analyte == select.analyteB) %>%
+#      select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
+#      mutate(collectDate = substr(collectDate,1,10)) %>% 
+#      arrange(collectDate)
     
-    #analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
+#    analyte_union<- union(analyte_data, analyte_dataB, by= 'collectDate')
+#    analytes1<- analyte_union %>% 
+#      select(analyte, analyteConcentration)
     
-    analyte_union<- union(analyte_data, analyte_dataB, by= 'collectDate')
-    analytes1<- analyte_union %>% 
-      select(analyte, analyteConcentration)
-    
-    #mdl_1<-lm(analyteConcentration.y ~ analyteConcentration.x,data = analytes)
-  
-    t.test(data= analytes1, analyteConcentration ~ analyte)
-    #summary(mdl_1)
-    
-  })
+#    t.test(data= analytes1, analyteConcentration ~ analyte)
+
+#  })
   
   output$PvalueSUM <- renderPrint({
     
@@ -276,5 +271,50 @@ server <- function(input, output, session) {
 analytes
       
 })
+  
+  output$patterns<- renderDataTable({
+    
+    External.data <- site_select()
+    select.analyte <- Analyte_select()
+    select.analyteB <- Analyte_selectB()
+    site.pick<- site_select()
+    
+    alist<- c('ANC','Br','Ca','Cl','CO3','Conductivity'='conductivity','DIC','DOC','F','Fe','HCO3','K','Mg','Mn','Na','NH4 - N','NO2 - N','NO3+NO2 - N','Ortho - P','pH','Si','SO4','TDN','TDP','TDS','TN','TOC','TP','TPC','TPN','TSS','TSS - Dry Mass','UV Absorbance (250 nm)','UV Absorbance (280 nm)')
+  
+  correlation <- data.table(Analyte=character(),Correlation=numeric())
+  #View(correlation)
+
+  ##checking first analyte
+  analyte_data<- External.data %>%
+    filter(analyte == select.analyte) %>%
+    select(analyte, analyteConcentration, collectDate) %>% 
+    mutate(collectDate = substr(collectDate,1,10)) %>% 
+    arrange(collectDate)
+  #head(analyte_data)
+  i=1
+  while (i < length(alist)+1 ) {
+    
+  analyte_dataB<- External.data %>%
+    filter(analyte == alist[i]) %>%
+    select(analyte, analyteConcentration, collectDate) %>% 
+    mutate(collectDate = substr(collectDate,1,10)) %>% 
+    arrange(collectDate)
+  
+  analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
+  
+  correlation[[i,2]]<- cor(analytes$analyteConcentration.x, analytes$analyteConcentration.y)
+  correlation[[i,1]]<- paste0(analytes$analyte.y[1])
+
+  i=i+1
+  }
+  
+  correlationA<- correlation %>%
+    filter(Analyte != select.analyte) %>% 
+    arrange(desc(Concentration))
+  
+  correlationA
+    
+  })
+  
   
 } #end of server

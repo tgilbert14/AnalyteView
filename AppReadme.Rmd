@@ -1,0 +1,18 @@
+---
+title: "Analyte Comparison - Readme"
+author: "Tim Gilbert"
+date: "8/25/2020"
+output: 
+  html_document: 
+    toc: yes
+    toc_float: true
+---
+
+# App Data
+This Shiny app is designed to help view relationships between analytes sampled through water chemistry protocol (National Ecological Observatory Network). Data is taken from external lab results as published on NEON Data Portal and downloads a temporarily file to store data on local computer, then deletes when complete.
+
+# Uses
+App looks at data from one site (chosen) and plots out relationship of analyte concentrations over time, as well as correlation results between 'main' analyte selected and all others. Will also print out table showing the values plotted in Statistical Analysis tab and show a calculated P-value.
+
+# Limitations
+Samples must have same collection date to be compared so results are not comprehensive. Initial download can take a couple minutes to complete, but once downloaded, app can seamlessly transition to new analyte comparisons at same site. If new site is selected, will have to initiate download again.
