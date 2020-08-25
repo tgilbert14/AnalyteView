@@ -309,7 +309,16 @@ analytes
     filter(!is.na(Correlation)) %>% 
     arrange(desc(Correlation))
   
-  correlationA
+  #correlationA
+
+  if (nrow(correlationA) == 0) {
+    
+    correlation <- data.table(Analyte=character())
+    correlation<- ('Not enough data to calculate')
+    correlationA<- as.data.frame(correlation)
+  
+    }
+    correlationA
     
   })
   
