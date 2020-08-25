@@ -34,14 +34,8 @@ server <- function(input, output, session) {
     }
     
     #putting unzipped files together by type as list
-    DomainLab <- list.files(path= paste0(site.pick,"-unzip"),pattern= "domain")
     ExternalLab <- list.files(path= paste0(site.pick,"-unzip"),pattern= "external")
-    FieldData <- list.files(path= paste0(site.pick,"-unzip"),pattern= "fieldData")
-    ParentData <- list.files(path= paste0(site.pick,"-unzip"),pattern= "Parent")
-    
-    Domain<-list()      #empty lists to store file data below
-    Field<- list()
-    Parent<- list()
+
     External<- list()
     #Reading all CSV's and saving to vector
     i=1
@@ -50,13 +44,6 @@ server <- function(input, output, session) {
       while(i< length(years)+1){
         result[[i]] = tryCatch(External[[i]]<- read_csv(paste0(site.pick,"-unzip/",ExternalLab[i])),
                                error = function(e) paste("No data"))
-        result[[i]] = tryCatch(Domain[[i]]<- read_csv(paste0(site.pick,"-unzip/",DomainLab[i])),
-                               error = function(e) paste("No data"))
-        result[[i]] = tryCatch(Field[[i]]<- read_csv(paste0(site.pick,"-unzip/",FieldData[i])),
-                               error = function(e) paste("No data"))
-        result[[i]] = tryCatch(Parent[[i]]<- read_csv(paste0(site.pick,"-unzip/",ParentData[i])),
-                               error = function(e) paste("No data"))
-        #print(paste("Successfully Read",years[i]))
         i=i+1
       }
     }
@@ -67,59 +54,10 @@ server <- function(input, output, session) {
       External.data<- merge(External.data, External[[i]], all.x="T",all.y = "T")
       i=i+1
     }
-    Domain.data<- Domain[[1]]       #saving data for first bout
-    i=2
-    while (i < length(Domain)+1) {    #Merging the rest of data
-      Domain.data<- merge(Domain.data, Domain[[i]], all.x="T",all.y = "T")
-      i=i+1
-    }
-    Field.data<- Field[[1]]       #saving data for first bout
-    i=2
-    while (i < length(Field)+1) {    #Merging the rest of data
-      Field.data<- merge(Field.data, Field[[i]], all.x="T",all.y = "T")
-      i=i+1
-    }
-    Parent.data<- Parent[[1]]       #saving data for first bout
-    i=2
-    while (i < length(Parent)+1) {    #Merging the rest of data
-      Parent.data<- merge(Parent.data, Parent[[i]], all.x="T",all.y = "T")
-      i=i+1
-    } 
-    
-    write.table(Parent.data, file = paste0(site.pick,"Parent_data.csv"), sep = ",")
-    write.table(Field.data, file = paste0(site.pick,"Field_data.csv"), sep = ",")
-    write.table(Domain.data, file = paste0(site.pick,"Domain_data.csv"), sep = ",")
     
     setwd(D)
     External.data
   }) #end of data download
-  
-
-  dis_select <- reactive({
-    site.pick<- input$Select
-    #adding discharge to graph
-    dpid<- "DP1.20048.001"
-    data.all <- loadByProduct(dpID=dpid, site= site.pick,startdate = '2018-01', check.size=F)
-    d<- data.all$dsc_fieldData
-    
-  })
-  #parent data- not it use as of now
-  P.data<- reactive({
-    site.pick<- input$Select
-    Parent.data<- read.table(paste0('WaterWorld/',site.pick,'Parent_data.csv'), sep=',')
-    temp_data<- Parent.data %>%
-      select(waterTemp, dissolvedOxygen, dissolvedOxygenSaturation, specificConductance, collectDate) %>% 
-      arrange(collectDate)
-  })  
-  
-  #ANC/ALK data from domain data
-  D.data<- reactive({
-    site.pick<- input$Select
-    Domain.data<- read.table(paste0('WaterWorld/',site.pick,'Domain_data.csv'), sep=',')
-    ANC.data.do<- Domain.data %>%
-      select(ancMeqPerL, alkMeqPerL, collectDate) %>% 
-      arrange(collectDate)
-  })
   
   ##Analyte selections
   Analyte_select <- reactive({
@@ -132,7 +70,7 @@ server <- function(input, output, session) {
   }) #end of analyte selections
 
   #for testing
-  #select.analyte<- 'Discharge-FIELD'
+  #select.analyte<- 'Mg'
   #select.analyteB<- 'ANC'
   
   #Analyte compare plot1
@@ -142,8 +80,7 @@ server <- function(input, output, session) {
     select.analyte <- Analyte_select()
     select.analyteB <- Analyte_selectB()
     site.pick<- site_select()
-    d<- dis_select()
-    
+
     #External Lab data
     analyte_data<- External.data %>%
       filter(analyte == select.analyte) %>%
@@ -189,42 +126,6 @@ server <- function(input, output, session) {
       title = "External Lab Analyte Concentrations", yaxis2 = ay,
       xaxis = list(title="Collect Date"))
     
-    #Converting from 'lps' to 'cfs' so fits into graph
-    dsc<- d %>%
-      mutate(red_dis = totalDischarge*0.0353) %>% 
-      select(red_dis,collectDate) %>% 
-      arrange(collectDate)
-    
-    if (select.analyteB == 'Discharge-FIELD') {
-      d.plot<- d.plot%>% add_trace(data=dsc, x=~collectDate,y=~red_dis, yaxis= 'y2', name = 'Discharge (CSF)',colors =  getPalette(colourCount), mode='lines+markers', inherit = F, type='scatter', text=~paste0("Collect Date: ", collectDate, '\n','Discharge- NEON: ',red_dis,'csf'), alpha=.6, 
-                                   hoverinfo='text')
-
-    }
-    if (select.analyte == 'Discharge-FIELD') {
-      d.plot<- d.plot%>% add_trace(data=dsc, x=~collectDate,y=~red_dis, yaxis= 'y', name = 'Discharge (CSF)',colors =  getPalette(colourCount), mode='lines+markers', inherit = F, type='scatter', text=~paste0("Collect Date: ", collectDate, '\n','Discharge- NEON: ',red_dis,'csf'), alpha=.6, 
-                                   hoverinfo='text')
-    }
-    
-    ANC.data.do <- D.data()
-    
-    if (select.analyte == 'ALK-DOMAIN') {
-      d.plot<- d.plot%>% add_trace(data=ANC.data.do, x=~collectDate,y=~alkMeqPerL,  yaxis='y', name = 'Domain ALK (MeqPerL)', colors = getPalette(colourCount), mode='lines+markers', inherit = F, type='scatter',  text=~paste0("Collect Date: ", collectDate, '\n','Domain ALK- NEON: ',alkMeqPerL,' MeqPerL'), alpha=.6, 
-                                   hoverinfo='text')
-    }
-    if (select.analyteB == 'ALK-DOMAIN') {
-      d.plot<- d.plot%>% add_trace(data=ANC.data.do, x=~collectDate,y=~alkMeqPerL,  yaxis='y2', name = 'Domain ALK (MeqPerL)', colors = getPalette(colourCount), mode='lines+markers', inherit = F, type='scatter',  text=~paste0("Collect Date: ", collectDate, '\n','Domain ALK- NEON: ',alkMeqPerL,' MeqPerL'), alpha=.6, 
-                                   hoverinfo='text')
-    }
-    
-    if (select.analyte == 'ANC-DOMAIN') {
-      d.plot<- d.plot%>% add_trace(data=ANC.data.do, x=~collectDate,y=~ancMeqPerL, yaxis='y', name = 'Domain ANC (MeqPerL)', colors = getPalette(colourCount), mode='lines+markers', inherit = F, type='scatter', text=~paste0("Collect Date: ", collectDate, '\n','Domain ANC- NEON: ',ancMeqPerL,' MeqPerL'), alpha=.6, 
-                                   hoverinfo='text')
-    }
-    if (select.analyteB == 'ANC-DOMAIN') {
-      d.plot<- d.plot%>% add_trace(data=ANC.data.do, x=~collectDate,y=~ancMeqPerL, yaxis='y2', name = 'Domain ANC (MeqPerL)', colors = getPalette(colourCount), mode='lines+markers', inherit = F, type='scatter', text=~paste0("Collect Date: ", collectDate, '\n','Domain ANC- NEON: ',ancMeqPerL,' MeqPerL'), alpha=.6, 
-                                   hoverinfo='text')
-    }
-    
     D<- ''
     if (nchar(D) == 0) { D<- getwd() }
     unlink(paste0(D,"/WaterWorld"), recursive = T)
@@ -246,8 +147,7 @@ server <- function(input, output, session) {
     select.analyte <- Analyte_select()
     select.analyteB <- Analyte_selectB()
     site.pick<- site_select()
-    d<- dis_select()
-    
+
     #testing-
     #select.analyte<- 'Mg'
     #select.analyteB<- 'Na'
@@ -265,53 +165,8 @@ server <- function(input, output, session) {
       mutate(collectDate = substr(collectDate,1,10)) %>% 
       arrange(collectDate)
     
-    if (select.analyte == 'Discharge-FIELD') {
-      analyte_data<- d %>%
-        mutate(red_dis = totalDischarge*0.0353) %>% 
-        select(red_dis,collectDate) %>%
-        mutate(collectDate = substr(collectDate,1,10)) %>% 
-        arrange(collectDate)
-    }
-    
-    if (select.analyteB == 'Discharge-FIELD') {
-      #Converting from 'lps' to 'cfs' so fits into graph
-      analyte_dataB<- d %>%
-        mutate(red_dis = totalDischarge*0.0353) %>% 
-        select(red_dis,collectDate) %>%
-        mutate(collectDate = substr(collectDate,1,10)) %>% 
-        arrange(collectDate)
-    }
-
     analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
 
-    if (select.analyte == 'Discharge-FIELD') {
-      
-      sct_base<-ggplot(analytes,aes(y = analyteConcentration,x = red_dis))
-      d.plot<- sct_base+geom_point()+
-        geom_smooth(method = "lm",se = F, color = "Red", show.legend = T, formula = 'y ~ x', na.rm = F)+
-        geom_smooth(color = "Grey", show.legend = T, inherit.aes = T)+
-        theme_classic()+
-        ggtitle(paste0(analytes$analyte[1],' vs Discharge (cfs)'))+
-        xlab('Discharge (cfs)')+
-        ylab(analytes$analyte[1])
-      
-    }
-
-        if (select.analyteB == 'Discharge-FIELD') {
-      
-          sct_base<-ggplot(analytes,aes(y = red_dis,x = analyteConcentration))
-          d.plot<- sct_base+geom_point()+
-            geom_smooth(method = "lm",se = F, color = "Red", show.legend = T, formula = 'y ~ x', na.rm = F)+
-            geom_smooth(color = "Grey", show.legend = T, inherit.aes = T)+
-            theme_classic()+
-            ggtitle(paste0('Discharge (cfs) vs ',analytes$analyte[1]))+
-            xlab(analytes$analyte[1])+
-            ylab('Discharge (cfs)')
-          
-    }
-
-    if (select.analyte != 'Discharge-FIELD' && select.analyteB != 'Discharge-FIELD' ) {
-      
     sct_base<-ggplot(analytes,aes(y = analyteConcentration.y,x = analyteConcentration.x))
     d.plot<- sct_base+geom_point()+
       geom_smooth(method = "lm",se = F, color = "Red", show.legend = T, formula = 'y ~ x', na.rm = F)+
@@ -320,7 +175,6 @@ server <- function(input, output, session) {
       ggtitle(paste0(analytes$analyte.y[1],' vs ',analytes$analyte.x[1]))+
       xlab(analytes$analyte.x[1])+
       ylab(analytes$analyte.y[1])
-    }
     
     #anova()
     #t.test(analytes$analyteConcentration.y,analytes$analyteConcentration.x)
@@ -339,7 +193,38 @@ server <- function(input, output, session) {
     select.analyte <- Analyte_select()
     select.analyteB <- Analyte_selectB()
     site.pick<- site_select()
-    d<- dis_select()
+
+    analyte_data<- External.data %>%
+      filter(analyte == select.analyte) %>%
+      select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
+      mutate(collectDate = substr(collectDate,1,10)) %>% 
+      arrange(collectDate)
+    
+    analyte_dataB<- External.data %>%
+      filter(analyte == select.analyteB) %>%
+      select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
+      mutate(collectDate = substr(collectDate,1,10)) %>% 
+      arrange(collectDate)
+    
+    #analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
+    
+    analyte_union<- union(analyte_data, analyte_dataB, by= 'collectDate')
+    analytes1<- analyte_union %>% 
+      select(analyte, analyteConcentration)
+    
+    #mdl_1<-lm(analyteConcentration.y ~ analyteConcentration.x,data = analytes)
+  
+    t.test(data= analytes1, analyteConcentration ~ analyte)
+    #summary(mdl_1)
+    
+  })
+  
+  output$PvalueSUM <- renderPrint({
+    
+    External.data <- site_select()
+    select.analyte <- Analyte_select()
+    select.analyteB <- Analyte_selectB()
+    site.pick<- site_select()
     
     analyte_data<- External.data %>%
       filter(analyte == select.analyte) %>%
@@ -353,37 +238,15 @@ server <- function(input, output, session) {
       mutate(collectDate = substr(collectDate,1,10)) %>% 
       arrange(collectDate)
     
-    if (select.analyte == 'Discharge-FIELD') {
-      analyte_data<- d %>%
-        mutate(red_dis = totalDischarge*0.0353) %>% 
-        select(red_dis,collectDate) %>%
-        mutate(collectDate = substr(collectDate,1,10)) %>% 
-        arrange(collectDate)
-    }
-    
-    if (select.analyteB == 'Discharge-FIELD') {
-      #Converting from 'lps' to 'cfs' so fits into graph
-      analyte_dataB<- d %>%
-        mutate(red_dis = totalDischarge*0.0353) %>% 
-        select(red_dis,collectDate) %>%
-        mutate(collectDate = substr(collectDate,1,10)) %>% 
-        arrange(collectDate)
-    }
-    
     analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
     
-    if (select.analyte == 'Discharge-FIELD') {
-      mdl_1<-lm(analyteConcentration ~ red_dis,data = analytes)
-    }
+    #analyte_union<- union(analyte_data, analyte_dataB, by= 'collectDate')
+    #analytes1<- analyte_union %>% 
+    #  select(analyte, analyteConcentration)
     
-    if (select.analyteB == 'Discharge-FIELD') {
-      mdl_1<-lm(red_dis ~ analyteConcentration,data = analytes)
-    }
+    mdl_1<-lm(analyteConcentration.y ~ analyteConcentration.x,data = analytes)
     
-    if (select.analyte != 'Discharge-FIELD' && select.analyteB != 'Discharge-FIELD' ) {
-      mdl_1<-lm(analyteConcentration.y ~ analyteConcentration.x,data = analytes)
-      }
-    
+    #t.test(data= analytes1, analyteConcentration ~ analyte)
     summary(mdl_1)
     
   })
@@ -394,8 +257,7 @@ server <- function(input, output, session) {
     select.analyte <- Analyte_select()
     select.analyteB <- Analyte_selectB()
     site.pick<- site_select()
-    d<- dis_select()
-    
+
     analyte_data<- External.data %>%
       filter(analyte == select.analyte) %>%
       select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
@@ -407,23 +269,7 @@ server <- function(input, output, session) {
       select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
       mutate(collectDate = substr(collectDate,1,10)) %>% 
       arrange(collectDate)
-    
-    if (select.analyte == 'Discharge-FIELD') {
-      analyte_data<- d %>%
-        mutate(red_dis = totalDischarge*0.0353) %>% 
-        select(red_dis,collectDate) %>%
-        mutate(collectDate = substr(collectDate,1,10)) %>% 
-        arrange(collectDate)
-    }
-    
-    if (select.analyteB == 'Discharge-FIELD') {
-      #Converting from 'lps' to 'cfs' so fits into graph
-      analyte_dataB<- d %>%
-        mutate(red_dis = totalDischarge*0.0353) %>% 
-        select(red_dis,collectDate) %>%
-        mutate(collectDate = substr(collectDate,1,10)) %>% 
-        arrange(collectDate)
-    }
+
     
     analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
     

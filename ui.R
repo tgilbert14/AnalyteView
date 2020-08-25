@@ -1,20 +1,16 @@
 #---user interface--------------------------------------------------  
 ui <- dashboardPage(skin = 'blue',
 
-                        header=dashboardHeaderPlus(title='AOS Comparisons'),
+                        header=dashboardHeaderPlus(title='Analyte Compare (SWC)'),
                         
   dashboardSidebar(
       selectInput("Select", "Please type and select your site:",
                   choices = c("SYCA", "ARIK","BARC","BIGC","BLDE","BLUE","BLWA","CARI","COMO","CRAM","CUPE","FLNT","GUIL","HOPB","KING","LECO","LEWI","LIRO","MART","MAYF","MCDI","MCRA","OKSR","POSE","PRIN","PRLA","PRPO","REDB","SUGG","TECR","TOMB","TOOK","WALK","WLOU"), selected = F, multiple = T),
       selectInput("Select_A", "Please select one of these Analytes [External Lab]:",
-                  choices = c('ANC','Br','Ca','Cl','CO3','Conductivity'='conductivity','DIC','DOC','F','Fe','HCO3','K','Mg','Mn','Na','NH4 - N','NO2 - N','NO3+NO2 - N','Ortho - P','pH','Si','SO4','TDN','TDP','TDS','TN','TOC','TP','TPC','TPN','TSS','TSS - Dry Mass','UV Absorbance (250 nm)','UV Absorbance (280 nm)','Discharge'='Discharge-FIELD'), selected = F, multiple = F),
+                  choices = c('ANC','Br','Ca','Cl','CO3','Conductivity'='conductivity','DIC','DOC','F','Fe','HCO3','K','Mg','Mn','Na','NH4 - N','NO2 - N','NO3+NO2 - N','Ortho - P','pH','Si','SO4','TDN','TDP','TDS','TN','TOC','TP','TPC','TPN','TSS','TSS - Dry Mass','UV Absorbance (250 nm)','UV Absorbance (280 nm)'), selected = F, multiple = F),
       selectInput("Select_B", "Please select something to compare it to:",
-                  choices = c('Br','Ca','Cl','CO3','Conductivity'='conductivity','DIC','DOC','F','Fe','HCO3','K','Mg','Mn','Na','NH4 - N','NO2 - N','NO3+NO2 - N','Ortho - P','pH','Si','SO4','TDN','TDP','TDS','TN','TOC','TP','TPC','TPN','TSS','TSS - Dry Mass','UV Absorbance (250 nm)','UV Absorbance (280 nm)','Discharge'='Discharge-FIELD'), selected = F, multiple = F),
-      submitButton("    Process NEON Site Selection    "),
-    
-    #These inputs dont work.. need if statements in server.R to work
-    ## 'Domain ANC'='ANC-DOMAIN','Domain ALK'='ALK-DOMAIN'
-    
+                  choices = c('ANC','Br','Ca','Cl','CO3','Conductivity'='conductivity','DIC','DOC','F','Fe','HCO3','K','Mg','Mn','Na','NH4 - N','NO2 - N','NO3+NO2 - N','Ortho - P','pH','Si','SO4','TDN','TDP','TDS','TN','TOC','TP','TPC','TPN','TSS','TSS - Dry Mass','UV Absorbance (250 nm)','UV Absorbance (280 nm)'), selected = F, multiple = F),
+      submitButton("Process Selection(s)"),
     
       sidebarMenu(
         menuItem('Analyte Comaprison',tabName = 'E',icon=icon('chart-area')),
@@ -33,7 +29,7 @@ ui <- dashboardPage(skin = 'blue',
                 tabItem(tabName = 'E',
                         fluidRow(
                           box(title='Analyte Comparisons',
-                              footer = 'Looking at analyte data on NEON portal',
+                              footer = 'Relationship through time between analytes taken from Water Chemistry Samples',
                               status = 'info',
                               collapsible = T,
                               collapsed = F,
@@ -52,7 +48,7 @@ ui <- dashboardPage(skin = 'blue',
                           tabItem(tabName = 'D',
                                   fluidRow(
                                     box(title='Analyte Statistical Analysis',
-                                        footer = 'Looking at analyte consentration relationships',
+                                        footer = 'Linear Regresion Plot',
                                         status = 'info',
                                         collapsible = T,
                                         collapsed = F,
@@ -64,27 +60,41 @@ ui <- dashboardPage(skin = 'blue',
                                                style='height:400px;overflow-y:scroll'
                                         )
                                     ),
+                                    box(title='Analyte P-value summary',
+                                        footer = 'Summary of P-value by Analyte Concentrations by Date',
+                                        status = 'info',
+                                        collapsible = T,
+                                        collapsed = F,
+                                        solidHeader = F,
+                                        height='500',
+                                        width='12',
+                                        column(12,withSpinner(verbatimTextOutput('PvalueSUM'), image = 'https://media.giphy.com/media/yGhIqFuOx84KY/source.gif', image.height = '600px', image.width = '1200px', proxy.height = '300px'),
+                                               
+                                               style='height:400px;overflow-y:scroll'
+                                        )
+                                    ),
  
-                          box(title='Analyte P-value',
-                              footer = 'Summary of linear regression model (lm)',
+                          box(title='Analyte t-test',
+                              footer = 'T-test for analyte value comparisons',
                               status = 'info',
                               collapsible = T,
                               collapsed = F,
                               solidHeader = F,
-                              height='450',
+                              height='350',
                               width='12',
-                              column(12,withSpinner(verbatimTextOutput('Pvalue'), image = 'https://media.giphy.com/media/yGhIqFuOx84KY/source.gif', proxy.height = '50px'),
+                              column(12,withSpinner(verbatimTextOutput('Pvalue'), image = 'https://media.giphy.com/media/yGhIqFuOx84KY/source.gif', image.height = '600px', image.width = '1200px', proxy.height = '300px'),
                                      
-                                     style='height:300px;overflow-y:scroll'
+                                     style='height:250px;overflow-y:scroll'
                               )
                           )
+       
                         )
                     ),
                 #plot
                 tabItem(tabName = 'dtable',
                         fluidRow(
                           box(title='Data Table',
-                              footer = 'Looking at NEON data being analyzed in Analyte Analysis',
+                              footer = 'Data table of relationship being plotted for Stat Analysis',
                               status = 'info',
                               collapsible = T,
                               collapsed = F,
