@@ -1,5 +1,5 @@
 #---user interface--------------------------------------------------  
-ui <- dashboardPage(skin = 'blue',
+ui <- dashboardPage(skin = 'black',
 
                         header=dashboardHeaderPlus(title='Analyte Compare (SWC)'),
                         
@@ -19,7 +19,9 @@ ui <- dashboardPage(skin = 'blue',
         
         menuItem('Correlation Report',tabName = 'C',icon=icon('newspaper')),
         
-        menuItem('Data Table',tabName = 'dtable',icon=icon('table'))
+        menuItem('Data Table',tabName = 'dtable',icon=icon('table')),
+        
+        menuItem('Readme',tabName='readme',icon=icon('info-circle'))
         
       
       )
@@ -128,7 +130,12 @@ ui <- dashboardPage(skin = 'blue',
                               )
                           )
                         )
-                )
+                ),
+#readme
+tabItem(tabName='readme',
+        htmlOutput('appreadme')
+)
+
             )
   )
 )

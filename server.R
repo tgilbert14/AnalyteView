@@ -313,9 +313,12 @@ analytes
     filter(!is.na(Correlation)) %>% 
     arrange(desc(Correlation))
   
-  View(correlationA)
+  correlationA
     
   })
   
+  
+  #Readme - make into HTML
+  output$appreadme<-renderUI({includeHTML('AppReadme.html')})
   
 } #end of server
