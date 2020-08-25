@@ -148,10 +148,6 @@ server <- function(input, output, session) {
     select.analyteB <- Analyte_selectB()
     site.pick<- site_select()
 
-    #testing-
-    #select.analyte<- 'Mg'
-    #select.analyteB<- 'Na'
-
     #External Lab data
     analyte_data<- External.data %>%
       filter(analyte == select.analyte) %>%
@@ -272,14 +268,14 @@ analytes
       
 })
   
-  output$patterns<- renderDataTable({
+  c_check<- reactive({
     
     External.data <- site_select()
     select.analyte <- Analyte_select()
     select.analyteB <- Analyte_selectB()
     site.pick<- site_select()
     
-    alist<- c('ANC','Br','Ca','Cl','CO3','Conductivity'='conductivity','DIC','DOC','F','Fe','HCO3','K','Mg','Mn','Na','NH4 - N','NO2 - N','NO3+NO2 - N','Ortho - P','pH','Si','SO4','TDN','TDP','TDS','TN','TOC','TP','TPC','TPN','TSS','TSS - Dry Mass','UV Absorbance (250 nm)','UV Absorbance (280 nm)')
+    alist<- c('ANC','Br','Ca','Cl','CO3','conductivity','DIC','DOC','F','Fe','HCO3','K','Mg','Mn','Na','NH4 - N','NO2 - N','NO3+NO2 - N','Ortho - P','pH','Si','SO4','TDN','TDP','TDS','TN','TOC','TP','TPC','TPN','TSS','TSS - Dry Mass','UV Absorbance (250 nm)','UV Absorbance (280 nm)')
   
   correlation <- data.table(Analyte=character(),Correlation=numeric())
   #View(correlation)
@@ -287,7 +283,7 @@ analytes
   ##checking first analyte
   analyte_data<- External.data %>%
     filter(analyte == select.analyte) %>%
-    select(analyte, analyteConcentration, collectDate) %>% 
+    select(analyte, analyteConcentration, collectDate) %>%
     mutate(collectDate = substr(collectDate,1,10)) %>% 
     arrange(collectDate)
   #head(analyte_data)
@@ -307,8 +303,8 @@ analytes
 
   i=i+1
   }
-  
-  correlationA<- correlation %>%
+
+    correlationA<- correlation %>%
     filter(Analyte != select.analyte) %>% 
     filter(!is.na(Correlation)) %>% 
     arrange(desc(Correlation))
@@ -317,7 +313,12 @@ analytes
     
   })
   
+  output$patterns<- renderDataTable({
   
+    print(c_check())
+    
+    })
+    
   #Readme - make into HTML
   output$appreadme<-renderUI({includeHTML('AppReadme.html')})
   
