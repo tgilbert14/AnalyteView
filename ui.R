@@ -1,5 +1,5 @@
 #---user interface--------------------------------------------------  
-ui <- dashboardPage(skin = 'black',
+ui <- dashboardPage(skin = 'yellow',
 
                         header=dashboardHeaderPlus(title='Analyte Compare (SWC)'),
                         
