@@ -15,6 +15,8 @@ server <- function(input, output, session) {
     unlink(paste0(D,"/WaterWorld"), recursive = T)
     ifelse(!dir.exists(file.path(D,'WaterWorld')), dir.create(file.path(D,'WaterWorld')), FALSE)
     setwd(file.path(D,'WaterWorld'))
+    
+    #Date range
     y2017<-c()
     y2017 <- c("2017-01","2017-02","2017-03","2017-04","2017-05","2017-06","2017-07","2017-08","2017-09","2017-10","2017-11","2017-12")
     y2018 <- c("2018-01","2018-02","2018-03","2018-04","2018-05","2018-06","2018-07","2018-08","2018-09","2018-10","2018-11","2018-12")
@@ -23,6 +25,8 @@ server <- function(input, output, session) {
     y<- c(y2017,y2018)
     y2<- c(y,y2019)
     years<- c(y2,y2020)
+    
+    
     dpid <- "DP1.20093.001"   #Surface Water Chemistry DPID
     
     i=1
@@ -154,13 +158,13 @@ server <- function(input, output, session) {
     analyte_data<- External.data %>%
       filter(analyte == select.analyte) %>%
       select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
-      mutate(collectDate = substr(collectDate,1,10)) %>% 
+      #mutate(collectDate = substr(collectDate,1,10)) %>% 
       arrange(collectDate)
     
     analyte_dataB<- External.data %>%
       filter(analyte == select.analyteB) %>%
       select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
-      mutate(collectDate = substr(collectDate,1,10)) %>% 
+      #mutate(collectDate = substr(collectDate,1,10)) %>% 
       arrange(collectDate)
     
     analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
@@ -221,13 +225,13 @@ server <- function(input, output, session) {
     analyte_data<- External.data %>%
       filter(analyte == select.analyte) %>%
       select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
-      mutate(collectDate = substr(collectDate,1,10)) %>% 
+      #mutate(collectDate = substr(collectDate,1,10)) %>% 
       arrange(collectDate)
     
     analyte_dataB<- External.data %>%
       filter(analyte == select.analyteB) %>%
       select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
-      mutate(collectDate = substr(collectDate,1,10)) %>% 
+      #mutate(collectDate = substr(collectDate,1,10)) %>% 
       arrange(collectDate)
     
     analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
@@ -253,13 +257,13 @@ server <- function(input, output, session) {
     analyte_data<- External.data %>%
       filter(analyte == select.analyte) %>%
       select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
-      mutate(collectDate = substr(collectDate,1,10)) %>% 
+      #mutate(collectDate = substr(collectDate,1,10)) %>% 
       arrange(collectDate)
     
     analyte_dataB<- External.data %>%
       filter(analyte == select.analyteB) %>%
       select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
-      mutate(collectDate = substr(collectDate,1,10)) %>% 
+      #mutate(collectDate = substr(collectDate,1,10)) %>% 
       arrange(collectDate)
     
     
@@ -282,7 +286,7 @@ server <- function(input, output, session) {
     analyte_data<- External.data %>%
       filter(analyte == select.analyte) %>%
       select(analyte, analyteConcentration, collectDate) %>%
-      mutate(collectDate = substr(collectDate,1,10)) %>% 
+      #mutate(collectDate = substr(collectDate,1,10)) %>% 
       arrange(collectDate)
     #head(analyte_data)
     i=1
@@ -291,7 +295,7 @@ server <- function(input, output, session) {
       analyte_dataB<- External.data %>%
         filter(analyte == alist[i]) %>%
         select(analyte, analyteConcentration, collectDate) %>% 
-        mutate(collectDate = substr(collectDate,1,10)) %>% 
+        #mutate(collectDate = substr(collectDate,1,10)) %>% 
         arrange(collectDate)
       
       analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
