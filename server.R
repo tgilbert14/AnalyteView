@@ -35,7 +35,7 @@ server <- function(input, output, session) {
     
     #putting unzipped files together by type as list
     ExternalLab <- list.files(path= paste0(site.pick,"-unzip"),pattern= "external")
-
+    
     External<- list()
     #Reading all CSV's and saving to vector
     i=1
@@ -57,6 +57,7 @@ server <- function(input, output, session) {
     
     setwd(D)
     External.data
+    
   }) #end of data download
   
   ##Analyte selections
@@ -68,7 +69,7 @@ server <- function(input, output, session) {
     select.analyteB<- input$Select_B #saving site selection
     req(input$Select_B)
   }) #end of analyte selections
-
+  
   #for testing
   #select.analyte<- 'K'
   #select.analyteB<- 'Mg'
@@ -80,7 +81,13 @@ server <- function(input, output, session) {
     select.analyte <- Analyte_select()
     select.analyteB <- Analyte_selectB()
     site.pick<- site_select()
-
+    
+    #deleting files tha were downloaded to computer
+    D<- ''
+    if (nchar(D) == 0) { D<- getwd() }
+    unlink(paste0(D,"/WaterWorld"), recursive = T)
+    
+    
     #External Lab data
     analyte_data<- External.data %>%
       filter(analyte == select.analyte) %>%
@@ -125,12 +132,7 @@ server <- function(input, output, session) {
     d.plot<- d.plot%>% layout(
       title = "External Lab Analyte Concentrations", yaxis2 = ay,
       xaxis = list(title="Collect Date"))
-    
-    D<- ''
-    if (nchar(D) == 0) { D<- getwd() }
-    unlink(paste0(D,"/WaterWorld"), recursive = T)
-    
-    d.plot
+
     
   })
   
@@ -139,7 +141,7 @@ server <- function(input, output, session) {
     print(plotInput())
   })
   
-
+  
   #Analyte compare plot2
   plotInput2 <- reactive({
     
@@ -147,7 +149,7 @@ server <- function(input, output, session) {
     select.analyte <- Analyte_select()
     select.analyteB <- Analyte_selectB()
     site.pick<- site_select()
-
+    
     #External Lab data
     analyte_data<- External.data %>%
       filter(analyte == select.analyte) %>%
@@ -162,7 +164,7 @@ server <- function(input, output, session) {
       arrange(collectDate)
     
     analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
-
+    
     sct_base<-ggplot(analytes,aes(y = analyteConcentration.y,x = analyteConcentration.x))
     d.plot<- sct_base+geom_point()+
       geom_smooth(method = "lm",se = F, color = "Red", show.legend = T, formula = 'y ~ x', na.rm = F)+
@@ -175,40 +177,39 @@ server <- function(input, output, session) {
     #anova()
     #t.test(analytes$analyteConcentration.y,analytes$analyteConcentration.x)
     
-    d.plot
-    
+
   })
   
   output$Dlab <- renderPlotly({
     print(plotInput2())
   })
   
-#  output$Pvalue <- renderPrint({
-    
-#    External.data <- site_select()
-#    select.analyte <- Analyte_select()
-#    select.analyteB <- Analyte_selectB()
-#    site.pick<- site_select()
-
-#    analyte_data<- External.data %>%
-#      filter(analyte == select.analyte) %>%
-#      select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
-#      mutate(collectDate = substr(collectDate,1,10)) %>% 
-#      arrange(collectDate)
-    
-#    analyte_dataB<- External.data %>%
-#      filter(analyte == select.analyteB) %>%
-#      select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
-#      mutate(collectDate = substr(collectDate,1,10)) %>% 
-#      arrange(collectDate)
-    
-#    analyte_union<- union(analyte_data, analyte_dataB, by= 'collectDate')
-#    analytes1<- analyte_union %>% 
-#      select(analyte, analyteConcentration)
-    
-#    t.test(data= analytes1, analyteConcentration ~ analyte)
-
-#  })
+  #  output$Pvalue <- renderPrint({
+  
+  #    External.data <- site_select()
+  #    select.analyte <- Analyte_select()
+  #    select.analyteB <- Analyte_selectB()
+  #    site.pick<- site_select()
+  
+  #    analyte_data<- External.data %>%
+  #      filter(analyte == select.analyte) %>%
+  #      select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
+  #      mutate(collectDate = substr(collectDate,1,10)) %>% 
+  #      arrange(collectDate)
+  
+  #    analyte_dataB<- External.data %>%
+  #      filter(analyte == select.analyteB) %>%
+  #      select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
+  #      mutate(collectDate = substr(collectDate,1,10)) %>% 
+  #      arrange(collectDate)
+  
+  #    analyte_union<- union(analyte_data, analyte_dataB, by= 'collectDate')
+  #    analytes1<- analyte_union %>% 
+  #      select(analyte, analyteConcentration)
+  
+  #    t.test(data= analytes1, analyteConcentration ~ analyte)
+  
+  #  })
   
   output$PvalueSUM <- renderPrint({
     
@@ -243,12 +244,12 @@ server <- function(input, output, session) {
   })
   
   output$table <- renderDataTable({
-  
+    
     External.data <- site_select()
     select.analyte <- Analyte_select()
     select.analyteB <- Analyte_selectB()
     site.pick<- site_select()
-
+    
     analyte_data<- External.data %>%
       filter(analyte == select.analyte) %>%
       select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
@@ -260,13 +261,11 @@ server <- function(input, output, session) {
       select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
       mutate(collectDate = substr(collectDate,1,10)) %>% 
       arrange(collectDate)
-
+    
     
     analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
     
-analytes
-      
-})
+  })
   
   c_check<- reactive({
     
@@ -276,58 +275,55 @@ analytes
     site.pick<- site_select()
     
     alist<- c('ANC','Br','Ca','Cl','CO3','conductivity','DIC','DOC','F','Fe','HCO3','K','Mg','Mn','Na','NH4 - N','NO2 - N','NO3+NO2 - N','Ortho - P','pH','Si','SO4','TDN','TDP','TDS','TN','TOC','TP','TPC','TPN','TSS','TSS - Dry Mass','UV Absorbance (250 nm)','UV Absorbance (280 nm)')
-  
-  correlation <- data.table(Analyte=character(),Correlation=numeric())
-  #View(correlation)
-
-  ##checking first analyte
-  analyte_data<- External.data %>%
-    filter(analyte == select.analyte) %>%
-    select(analyte, analyteConcentration, collectDate) %>%
-    mutate(collectDate = substr(collectDate,1,10)) %>% 
-    arrange(collectDate)
-  #head(analyte_data)
-  i=1
-  while (i < length(alist)+1 ) {
     
-  analyte_dataB<- External.data %>%
-    filter(analyte == alist[i]) %>%
-    select(analyte, analyteConcentration, collectDate) %>% 
-    mutate(collectDate = substr(collectDate,1,10)) %>% 
-    arrange(collectDate)
-  
-  analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
-  
-  correlation[[i,2]]<- cor(analytes$analyteConcentration.x, analytes$analyteConcentration.y)
-  correlation[[i,1]]<- paste0(analytes$analyte.y[1])
+    correlation <- data.table(Analyte=character(),Correlation=numeric())
 
-  i=i+1
-  }
-
-    correlationA<- correlation %>%
-    filter(Analyte != select.analyte) %>% 
-    filter(!is.na(Correlation)) %>% 
-    arrange(desc(Correlation))
-  
-  #correlationA
-
-  if (nrow(correlationA) == 0) {
-    
-    correlation <- data.table(Analyte=character())
-    correlation<- ('Not enough data to calculate')
-    correlationA<- as.data.frame(correlation)
-  
+    ##checking first analyte
+    analyte_data<- External.data %>%
+      filter(analyte == select.analyte) %>%
+      select(analyte, analyteConcentration, collectDate) %>%
+      mutate(collectDate = substr(collectDate,1,10)) %>% 
+      arrange(collectDate)
+    #head(analyte_data)
+    i=1
+    while (i < length(alist)+1 ) {
+      
+      analyte_dataB<- External.data %>%
+        filter(analyte == alist[i]) %>%
+        select(analyte, analyteConcentration, collectDate) %>% 
+        mutate(collectDate = substr(collectDate,1,10)) %>% 
+        arrange(collectDate)
+      
+      analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
+      
+      correlation[[i,2]]<- cor(analytes$analyteConcentration.x, analytes$analyteConcentration.y)
+      correlation[[i,1]]<- paste0(analytes$analyte.y[1])
+      
+      i=i+1
     }
-    correlationA
+    
+    correlation<- correlation %>%
+      arrange(desc(Correlation))
+    
+    i=1
+    while (i < length(alist)+1 ) {
+    if(is.na(correlation[[i,2]])) {
+      correlation[[i,2]]<- ('Not enough data')
+    }
+      i=i+1
+    }
+    
+    correlationA<- correlation %>%
+      filter(Analyte != select.analyte)
     
   })
   
   output$patterns<- renderDataTable({
-  
+    
     print(c_check())
     
-    })
-    
+  })
+  
   #Readme - make into HTML
   output$appreadme<-renderUI({includeHTML('AppReadme.html')})
   
