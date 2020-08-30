@@ -13,7 +13,7 @@ ui <- dashboardPage(skin = 'black',
       submitButton("Process Selection(s)"),
     
       sidebarMenu(
-        menuItem('Analyte Comaprison',tabName = 'E',icon=icon('chart-area')),
+        menuItem('Analyte Comparison',tabName = 'E',icon=icon('chart-area')),
         
         menuItem('Analtye Analysis',tabName = 'D',icon=icon('laptop-code')),
         
