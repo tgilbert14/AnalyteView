@@ -14,13 +14,10 @@ ui <- dashboardPage(skin = 'black',
     
       sidebarMenu(
         menuItem('Analyte Comparison',tabName = 'E',icon=icon('chart-area')),
-        
         menuItem('Analtye Analysis',tabName = 'D',icon=icon('laptop-code')),
-        
         menuItem('Correlation Report',tabName = 'C',icon=icon('newspaper')),
-        
         menuItem('Data Table',tabName = 'dtable',icon=icon('table')),
-        
+        menuItem('Machine Learning',tabName = 'model',icon=icon('robot')),
         menuItem('Readme',tabName='readme',icon=icon('info-circle'))
         
       
@@ -51,7 +48,7 @@ ui <- dashboardPage(skin = 'black',
                 tabItem(tabName = 'C',
                         fluidRow(
                           box(title='Correlation Report',
-                              footer = 'Calculating correlations between main analyte to the rest',
+                              footer = 'Calculating correlations between main analyte to the others',
                               status = 'info',
                               collapsible = T,
                               collapsed = F,
@@ -131,6 +128,25 @@ ui <- dashboardPage(skin = 'black',
                           )
                         )
                 ),
+
+tabItem(tabName = 'model',
+        fluidRow(
+          box(title='Predictive model',
+              footer = 'Machine Learning model for titration based on other analytes',
+              status = 'info',
+              collapsible = T,
+              collapsed = F,
+              solidHeader = F,
+              height='650',
+              width='12',
+              column(12,withSpinner(dataTableOutput('predict'), image = 'https://media.giphy.com/media/yGhIqFuOx84KY/source.gif',  image.height = '600px', image.width = '1000px', proxy.height = '1000px'),
+                     
+                     style='height:500px;overflow-y:scroll'
+              )
+          )
+        )
+),
+
 #readme
 tabItem(tabName='readme',
         htmlOutput('appreadme')
