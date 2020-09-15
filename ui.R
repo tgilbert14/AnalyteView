@@ -1,5 +1,5 @@
 #---user interface--------------------------------------------------  
-ui <- dashboardPage(skin = 'black',
+ui <- dashboardPage(skin = 'purple',
 
                         header=dashboardHeaderPlus(title='Analyte Compare (SWC)'),
                         
@@ -17,9 +17,10 @@ ui <- dashboardPage(skin = 'black',
         menuItem('Analtye Analysis',tabName = 'D',icon=icon('laptop-code')),
         menuItem('Correlation Report',tabName = 'C',icon=icon('newspaper')),
         menuItem('Data Table',tabName = 'dtable',icon=icon('table')),
-        menuItem('Machine Learning',tabName = 'model',icon=icon('robot')),
-        menuItem('Readme',tabName='readme',icon=icon('info-circle'))
         
+        menuItem('MLR Model',tabName = 'model', icon=icon('robot')),
+        
+        menuItem('Readme',tabName='readme',icon=icon('info-circle'))
       
       )
     ),
@@ -132,14 +133,14 @@ ui <- dashboardPage(skin = 'black',
 tabItem(tabName = 'model',
         fluidRow(
           box(title='Predictive model',
-              footer = 'Machine Learning model for titration based on other analytes',
+              footer = 'Machine Learning model using mlr package for choosen "main" analyte: Model = "regr.glm" [percent based on CrossValidation w/10 fold, 40 reps]',
               status = 'info',
               collapsible = T,
               collapsed = F,
               solidHeader = F,
               height='650',
               width='12',
-              column(12,withSpinner(dataTableOutput('predict'), image = 'https://media.giphy.com/media/yGhIqFuOx84KY/source.gif',  image.height = '600px', image.width = '1000px', proxy.height = '1000px'),
+              column(12,withSpinner(textOutput('predict'), image = 'https://media.giphy.com/media/yGhIqFuOx84KY/source.gif',  image.height = '600px', image.width = '1000px', proxy.height = '1000px'),
                      
                      style='height:500px;overflow-y:scroll'
               )

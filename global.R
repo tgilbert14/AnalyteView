@@ -18,6 +18,8 @@ load.pkg('RColorBrewer')
 load.pkg('shinydashboard')
 load.pkg('shinydashboardPlus')
 load.pkg('shinycssloaders')
+load.pkg('mlr')    
 #load.pkg('shinyjs')
 load.pkg('data.table')    
 
+fit_data<- read_csv("all_water_chemData.csv")

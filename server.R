@@ -12,7 +12,8 @@ server <- function(input, output, session) {
     External.data<- data.swc$swc_externalLabDataByAnalyte
     
   }) # end of data download
-  
+
+
   # analyte selections
   Analyte_select <- reactive({
     select.analyte<- input$Select_A # saving site selection
@@ -22,6 +23,10 @@ server <- function(input, output, session) {
     select.analyteB<- input$Select_B # saving site selection
     req(input$Select_B)
   }) # end of analyte selections
+  
+  mlr<- reactive({
+  f_data <- fit_data
+  })
   
   # analyte compare plot1
   plotInput <- reactive({
@@ -208,16 +213,42 @@ server <- function(input, output, session) {
     
   })
   
-  output$predict <- renderDataTable({
+  output$predict <- renderText({
     
-    External.data <- site_select()
-    #select.analyte <- Analyte_select()
-    #select.analyteB <- Analyte_selectB()
-    #site.pick<- site_select()
+    #External.data <- site_select()
+    select.analyte <- Analyte_select()
+    f_data<- mlr()
     
+    # define a task (what want to achieve) - Target is variable trying to predict
+    ANCTask <- makeRegrTask(data = f_data, target = select.analyte)
     
-  # Where machine learning code goes (table??)
+    # choose a Learner for model- listLearners("regr")$class
+    lm <- makeLearner('regr.glm', predict.type = 'response')
+
+    # must define task, learner, and train model
+    lmModel<- train(lm, ANCTask)
     
+    # testing
+    # cross validation w/ 10 fold and 50 reps
+    
+    kFold<- makeResampleDesc("RepCV", fold = 10, reps = 40) # repeat cross validation ('RepCV')
+    kFoldCV<- resample(learner = lm, task = ANCTask, resampling = kFold)
+    
+    mse.test.mean<- kFoldCV$aggr
+    mse<- (1-mse.test.mean)*100
+    
+    if (mse > 0) {
+    result<- print(paste0(select.analyte, " can be predicted with present analyte data present within ~", round(mse, 2), "% of the time (data from all sites)"))
+    }
+    
+    if (mse < 0) {
+    result<- print(paste0(select.analyte, " CANNOT be predicted with present analyte data: ~", round(mse, 2), "% value returned"))
+    }
+    
+    result
+    #pred<- predictLearner(.learner = lm, .model = lmModel, .newdata = new.d)
+    #as_tibble(pred)  
+  
   })
   
   
