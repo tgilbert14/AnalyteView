@@ -238,7 +238,7 @@ server <- function(input, output, session) {
     mse<- (1-mse.test.mean)*100
     
     if (mse > 0) {
-    result<- print(paste0(select.analyte, " can be predicted with present analyte data present within ~", round(mse, 2), "% of the time (data from all sites)"))
+    result<- print(paste0(select.analyte, " can be predicted with present analyte data within ~", round(mse, 2), "% of the time (data from all sites)"))
     }
     
     if (mse < 0) {
