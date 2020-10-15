@@ -3,21 +3,21 @@
 
 #### Timothy Gilbert (tsgilbert90@gmail.com)
 
-## Background
+## About
 
-This Shiny app uses [National Ecological Observatory Network 'NEON'](https://data.neonscience.org/data-products/explore) data to compare analyte concentrations measured using [Surface Water Chemistry](https://data.neonscience.org/data-products/DP1.20093.001#about) sampling across various [NEON sites](https://www.neonscience.org/field-sites/field-sites-map) across the United States. More information on the data collection process can be found by clicking on [Surface Water Chemistry](https://data.neonscience.org/data-products/DP1.20093.001#about) anywhere in this document. <!-- Two spaces apart -->
+This Shiny app uses **National Ecological Observatory Network** [(NEON data portal)](https://data.neonscience.org/) to compare analyte concentrations using **Surface Water Chemistry** [(SWC)](https://data.neonscience.org/data-products/DP1.20093.001#about) sampling across various NEON [sites](https://www.neonscience.org/field-sites/field-sites-map) across the United States. More information on the data collection process can be found by clicking on [SWC](https://data.neonscience.org/data-products/DP1.20093.001#about) anywhere in this document. More information on the NEON project can by clicking [here](https://www.neonscience.org/)<!-- Two spaces apart -->
 
 
-## Comparison
+## Comparison Plot
 
-This app allows you to select an Aquatic Field site and two analytes to compare, one '**main**' and a second one. The data is pulled from the NEON database from 2016-01 until most recent data and plotted through time on a dual y-axis plot. The plot auto scales to allow for pattern detection between various analytes.
+This app allows you to select an Aquatic Field site and two analytes to compare, one '**main**' and another to compare. The data is pulled from the NEON database from 2016-01 until most recent data and plotted through time on a dual y-axis plot. The plot auto scales to allow for pattern detection between various analytes.
 
 ![Example plot for Sycamore Creek (D14 Tucson, AZ) for conductivity vs ANC concentrations](ExPlot.jpg)
 
 
-## Analysis
+## Regression Analysis
 
-The Analysis tab plots out the two selected analyte concentrations through linear regression (lm). Below that the summary is taken for the relationship between the two analytes and the P-value is printed out. Data points are paired by collection date of sample taken.
+The Analysis tab plots out the two selected analyte concentrations through linear regression (lm). Below that the summary is taken for the relationship between the two analytes and the P-value is printed out. Data points are paired by collection date of samples taken.
 
 ```{r, eval=FALSE}
     # portion of code for plotting linear regression of two analytes
@@ -34,6 +34,8 @@ The Analysis tab plots out the two selected analyte concentrations through linea
     mdl_1<-lm(analyteConcentration.y ~ analyteConcentration.x,data = analytes)
     summary(mdl_1)
 ```
+
+![Example plot of linear regression of conductivity vs ANC concentrations](ExReg.jpg)
 
 _Due to some samples having replicates collected on the same day, plotting the same analyte by the exact same analyte may not yield a perfect linear line do to slight variation_
 
@@ -97,11 +99,15 @@ _Some sites may not have enough data points for certain analytes and do not prod
 
 The Data Table tab shows the actual data being plotted for the Analysis Tab with collection dates included.
 
+![Example of data table produced from data being evaluated for Regression Analysis plot](ExTable.jpg)
+
+
 
 ## MLR Model
 
-_IN PROGRESS_
-<!--- three spaces --->
+_IN PROGRESS:_ 
+<!-- three spaces -->
+
 The MLR(Machine Learning) Model tab uses the main analyte as its predictor value. It takes all Surface Water Chemistry data provided from all the sites and tries to predict the value for the 'main' analyte if all other analyte values were provided. This tab only shows the predicting value test results for now.
 
 ```{r, eval=FALSE}
@@ -133,7 +139,7 @@ The MLR(Machine Learning) Model tab uses the main analyte as its predictor value
 _Improvements want to be made for this section. Prehaps changing the machine learning model to assign a water quality tag (Great, Good, Okay, Bad, Terrible) based on a water quality assessment_
 
 
-## Analytes Avaliable in App
+## Analytes Avaliable
 
 + 'Acid Neutralizing Capacity(ANC)'='ANC'
 + 'Bicarbonate Concentration(Br)'='Br'

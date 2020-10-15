@@ -15,8 +15,8 @@ ui <- dashboardPage(skin = 'purple',
         menuItem('About',tabName='readme',icon=icon('info-circle')),
         menuItem('Comparison Plot',tabName = 'E',icon=icon('chart-area')),
         menuItem('Regression Analysis',tabName = 'D',icon=icon('laptop-code')),
-        menuItem('Correlation Report',tabName = 'C',icon=icon('newspaper')),
         menuItem('Data Table',tabName = 'dtable',icon=icon('table')),
+        menuItem('Correlation Report',tabName = 'C',icon=icon('newspaper')),
         menuItem('MLR Model',tabName = 'model', icon=icon('robot'))
       
       )
