@@ -5,7 +5,7 @@
 
 ## Background
 
-This Shiny app uses [National Ecological Observatory Network 'NEON'](https://data.neonscience.org/data-products/explore) data to compare analyte concentrations measured using [Surface Water Chemistry](https://data.neonscience.org/data-products/DP1.20093.001#about) sampling across various [NEON sites](https://www.neonscience.org/field-sites/field-sites-map) across the United States. More information on the data collection process can be found by clicking on [Surface Water Chemistry](https://data.neonscience.org/data-products/DP1.20093.001#about) anywhere in this document <!-- Two spaces apart -->
+This Shiny app uses [National Ecological Observatory Network 'NEON'](https://data.neonscience.org/data-products/explore) data to compare analyte concentrations measured using [Surface Water Chemistry](https://data.neonscience.org/data-products/DP1.20093.001#about) sampling across various [NEON sites](https://www.neonscience.org/field-sites/field-sites-map) across the United States. More information on the data collection process can be found by clicking on [Surface Water Chemistry](https://data.neonscience.org/data-products/DP1.20093.001#about) anywhere in this document. <!-- Two spaces apart -->
 
 
 ## Comparison
@@ -42,6 +42,7 @@ _Due to some samples having replicates collected on the same day, plotting the s
 The Correlation Report tab uses the '**main**' analyte chosen and calculates correlation compared to every other analyte independently.
 
 ![Example table for Sycamore Creek (D14 Tucson, AZ) for correlation of conductivity compared to other measured analytes](ExCor.jpg)
+
 
 ```{r, eval=FALSE}
 # list of analyes being evaluated
