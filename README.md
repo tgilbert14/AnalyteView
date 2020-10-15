@@ -1,12 +1,7 @@
----
-title: "Analyte Comparison App"
-author: "Timothy Gilbert [tsgilbert90@gmail.com]"
-date: "10/15/2020"
-output: 
-  html_document: 
-    toc: yes
-    toc_float: true
----
+
+# Analyte Comparison (v1.0)
+
+#### Timothy Gilbert (tsgilbert90@gmail.com)
 
 ## Background
 
