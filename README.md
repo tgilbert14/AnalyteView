@@ -8,36 +8,6 @@
 This Shiny app uses **National Ecological Observatory Network** [(NEON data portal)](https://data.neonscience.org/) to compare analyte concentrations using **Surface Water Chemistry** [(SWC)](https://data.neonscience.org/data-products/DP1.20093.001#about) sampling across various NEON [sites](https://www.neonscience.org/field-sites/field-sites-map) across the United States. More information on the data collection process can be found by clicking on [SWC](https://data.neonscience.org/data-products/DP1.20093.001#about) anywhere in this document. More information on the NEON project can by clicking [here](https://www.neonscience.org/)<!-- Two spaces apart -->
 
 
-## Comparison Plot
-
-This app allows you to select an Aquatic Field site and two analytes to compare, one '**main**' and another to compare. The data is pulled from the NEON database from 2016-01 until most recent data and plotted through time on a dual y-axis plot. The plot auto scales to allow for pattern detection between various analytes.
-
-![Example plot for Sycamore Creek (D14 Tucson, AZ) for conductivity vs ANC concentrations](ExPlot.jpg)
-
-
-## Regression Analysis
-
-The Analysis tab plots out the two selected analyte concentrations through linear regression (lm). Below that the summary is taken for the relationship between the two analytes and the P-value is printed out. Data points are paired by collection date of samples taken.
-
-```{r, eval=FALSE}
-    # portion of code for plotting linear regression of two analytes
-    sct_base<-ggplot(analytes,aes(y = analyteConcentration.y,x = analyteConcentration.x))
-    d.plot<- sct_base+geom_point()+
-      geom_smooth(method = "lm",se = F, color = "Red", show.legend = T, formula = 'y ~ x', na.rm = F)+
-      geom_smooth(color = "Grey", show.legend = T, inherit.aes = T)+
-      theme_classic()+
-      ggtitle(paste0(analytes$analyte.y[1],' vs ',analytes$analyte.x[1]))+
-      xlab(analytes$analyte.x[1])+
-      ylab(analytes$analyte.y[1])
-    
-    # portion of code for summary of linear regression (for P-value)
-    mdl_1<-lm(analyteConcentration.y ~ analyteConcentration.x,data = analytes)
-    summary(mdl_1)
-```
-
-![Example plot of linear regression of conductivity vs ANC concentrations](ExReg.jpg)
-
-_Due to some samples having replicates collected on the same day, plotting the same analyte by the exact same analyte may not yield a perfect linear line do to slight variation_
 
 ## Correlation Report
 
@@ -93,6 +63,38 @@ alist<- c('ANC','Br','Ca','Cl','CO3','conductivity','DIC','DOC','F','Fe','HCO3',
 ```
 
 _Some sites may not have enough data points for certain analytes and do not produce a correlation result. Therefore the table will print 'Not enough data'_
+
+
+## Comparison Plot
+
+This app allows you to select an Aquatic Field site and two analytes to compare, one '**main**' and another to compare. The data is pulled from the NEON database from 2016-01 until most recent data and plotted through time on a dual y-axis plot. The plot auto scales to allow for pattern detection between various analytes.
+
+![Example plot for Sycamore Creek (D14 Tucson, AZ) for conductivity vs ANC concentrations](ExPlot.jpg)
+
+
+## Regression Analysis
+
+The Analysis tab plots out the two selected analyte concentrations through linear regression (lm). Below that the summary is taken for the relationship between the two analytes and the P-value is printed out. Data points are paired by collection date of samples taken.
+
+```{r, eval=FALSE}
+    # portion of code for plotting linear regression of two analytes
+    sct_base<-ggplot(analytes,aes(y = analyteConcentration.y,x = analyteConcentration.x))
+    d.plot<- sct_base+geom_point()+
+      geom_smooth(method = "lm",se = F, color = "Red", show.legend = T, formula = 'y ~ x', na.rm = F)+
+      geom_smooth(color = "Grey", show.legend = T, inherit.aes = T)+
+      theme_classic()+
+      ggtitle(paste0(analytes$analyte.y[1],' vs ',analytes$analyte.x[1]))+
+      xlab(analytes$analyte.x[1])+
+      ylab(analytes$analyte.y[1])
+    
+    # portion of code for summary of linear regression (for P-value)
+    mdl_1<-lm(analyteConcentration.y ~ analyteConcentration.x,data = analytes)
+    summary(mdl_1)
+```
+
+![Example plot of linear regression of conductivity vs ANC concentrations](ExReg.jpg)
+
+_Due to some samples having replicates collected on the same day, plotting the same analyte by the exact same analyte may not yield a perfect linear line do to slight variation_
 
 
 ## Data Table
