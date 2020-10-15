@@ -1,6 +1,5 @@
 #---user interface--------------------------------------------------  
 ui <- dashboardPage(skin = 'purple',
-
                         header=dashboardHeaderPlus(title='Analyte Compare (SWC)'),
                         
   dashboardSidebar(
@@ -13,14 +12,12 @@ ui <- dashboardPage(skin = 'purple',
       submitButton("Process Selection(s)"),
     
       sidebarMenu(
-        menuItem('Analyte Comparison',tabName = 'E',icon=icon('chart-area')),
-        menuItem('Analtye Analysis',tabName = 'D',icon=icon('laptop-code')),
+        menuItem('About',tabName='readme',icon=icon('info-circle')),
+        menuItem('Comparison Plot',tabName = 'E',icon=icon('chart-area')),
+        menuItem('Regression Analysis',tabName = 'D',icon=icon('laptop-code')),
         menuItem('Correlation Report',tabName = 'C',icon=icon('newspaper')),
         menuItem('Data Table',tabName = 'dtable',icon=icon('table')),
-        
-        menuItem('MLR Model',tabName = 'model', icon=icon('robot')),
-        
-        menuItem('Readme',tabName='readme',icon=icon('info-circle'))
+        menuItem('MLR Model',tabName = 'model', icon=icon('robot'))
       
       )
     ),
@@ -68,7 +65,7 @@ ui <- dashboardPage(skin = 'purple',
                           tabItem(tabName = 'D',
                                   fluidRow(
                                     box(title='Analyte Statistical Analysis',
-                                        footer = 'Linear Regresion Plot',
+                                        footer = 'Linear Regression Plot',
                                         status = 'info',
                                         collapsible = T,
                                         collapsed = F,
@@ -94,21 +91,6 @@ ui <- dashboardPage(skin = 'purple',
                                                style='height:400px;overflow-y:scroll'
                                         )
                                     ),
- 
- #                         box(title='Analyte t-test',
-#                             footer = 'T-test for analyte value comparisons',
-#                              status = 'info',
-#                              collapsible = T,
-#                              collapsed = F,
-#                              solidHeader = F,
-#                              height='350',
-#                              width='12',
-#                              column(12,withSpinner(verbatimTextOutput('Pvalue'), image = 'https://media.giphy.com/media/yGhIqFuOx84KY/source.gif', image.height = '600px', image.width = '1200px', proxy.height = '300px'),
-#                                     
-#                                     style='height:250px;overflow-y:scroll'
-#                              )
-#                          )
-       
                         )
                     ),
                 #plot
@@ -132,7 +114,7 @@ ui <- dashboardPage(skin = 'purple',
 
 tabItem(tabName = 'model',
         fluidRow(
-          box(title='Predictive model',
+          box(title='Predictive model results',
               footer = 'Machine Learning model using mlr package for choosen "main" analyte: Model = "regr.glm" [percent based on CrossValidation w/10 fold, 40 reps]',
               status = 'info',
               collapsible = T,
@@ -140,7 +122,7 @@ tabItem(tabName = 'model',
               solidHeader = F,
               height='650',
               width='12',
-              column(12,withSpinner(textOutput('predict'), image = 'https://media.giphy.com/media/yGhIqFuOx84KY/source.gif',  image.height = '600px', image.width = '1000px', proxy.height = '1000px'),
+              column(12,withSpinner(plotOutput('predict'), image = 'https://media.giphy.com/media/yGhIqFuOx84KY/source.gif',  image.height = '600px', image.width = '1000px', proxy.height = '1000px'),
                      
                      style='height:500px;overflow-y:scroll'
               )

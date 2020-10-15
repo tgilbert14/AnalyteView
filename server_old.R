@@ -1,42 +1,101 @@
 server <- function(input, output, session) {
   
-  # downloading data
+  #downloading data
   site_select <- reactive({
-    site.pick<- input$Select # saving site selection
+    site.pick<- input$Select #saving site selection
     site.pick<- input$Select
     req(input$Select)
     
-    dpid <- "DP1.20093.001"   # surface Water Chemistry DPID
-    data.swc<- loadByProduct(dpid, site = site.pick, startdate = '2016-01', check.size = F)
-
-    External.data<- data.swc$swc_externalLabDataByAnalyte
+    #Testing
+    #site.pick<- 'SYCA'
     
-  }) # end of data download
-
-
-  # analyte selections
+    ##Pulling data form 2018-01 to 2020-04
+    D<- ''
+    if (nchar(D) == 0) { D<- getwd() }
+    unlink(paste0(D,"/WaterWorld"), recursive = T)
+    ifelse(!dir.exists(file.path(D,'WaterWorld')), dir.create(file.path(D,'WaterWorld')), FALSE)
+    setwd(file.path(D,'WaterWorld'))
+    
+    #Date range
+    y2017<-c()
+    y2017 <- c("2017-01","2017-02","2017-03","2017-04","2017-05","2017-06","2017-07","2017-08","2017-09","2017-10","2017-11","2017-12")
+    y2018 <- c("2018-01","2018-02","2018-03","2018-04","2018-05","2018-06","2018-07","2018-08","2018-09","2018-10","2018-11","2018-12")
+    y2019 <- c("2019-01","2019-02","2019-03","2019-04","2019-05","2019-06","2019-07","2019-08","2019-09","2019-10","2019-11","2019-12")
+    y2020 <- c("2020-01","2020-02","2020-03","2020-04")
+    y<- c(y2017,y2018)
+    y2<- c(y,y2019)
+    years<- c(y2,y2020)
+    
+    
+    a<- loadByProduct(dpid, site = 'all', startdate = '2017-01', check.size = F)
+    
+    
+    #dpid <- "DP1.20093.001"   #Surface Water Chemistry DPID
+    
+    i=1
+    result = vector("list", length(years))
+    for(i in seq_along(years)){   #sequencing along dates 2018-01 to 2019-12 for NEON portal data
+      result[[i]] = tryCatch(getPackage(dpid, site_code = site.pick ,year_month = years[i], package = "basic")(years[[i]]), 
+                             error = function(e) paste("No data"))
+      zipF <- list.files(pattern= site.pick, full.names = T); sapply(zipF, unzip, exdir = paste0(site.pick,"-unzip"))
+    }
+    
+    #putting unzipped files together by type as list
+    ExternalLab <- list.files(path= paste0(site.pick,"-unzip"),pattern= "external")
+    
+    External<- list()
+    #Reading all CSV's and saving to vector
+    i=1
+    result = vector("list", length(years))
+    for(i in seq_along(years)) {
+      while(i< length(years)+1){
+        result[[i]] = tryCatch(External[[i]]<- read_csv(paste0(site.pick,"-unzip/",ExternalLab[i])),
+                               error = function(e) paste("No data"))
+        i=i+1
+      }
+    }
+    #Merging data by type/origin [ExternalLab/DomainLab/Field/Parent Data]
+    External.data<- External[[1]]       #saving data for first bout
+    i=2
+    while (i < length(External)+1) {    #Merging the rest of data
+      External.data<- merge(External.data, External[[i]], all.x="T",all.y = "T")
+      i=i+1
+    }
+    
+    setwd(D)
+    External.data
+    
+  }) #end of data download
+  
+  ##Analyte selections
   Analyte_select <- reactive({
-    select.analyte<- input$Select_A # saving site selection
+    select.analyte<- input$Select_A #saving site selection
     req(input$Select_A)
   })
   Analyte_selectB <- reactive({
-    select.analyteB<- input$Select_B # saving site selection
+    select.analyteB<- input$Select_B #saving site selection
     req(input$Select_B)
-  }) # end of analyte selections
+  }) #end of analyte selections
   
-  mlr<- reactive({
-  f_data <- fit_data
-  })
+  #for testing
+  #select.analyte<- 'K'
+  #select.analyteB<- 'Mg'
   
-  # analyte compare plot1
+  #Analyte compare plot1
   plotInput <- reactive({
     
-    External.data <- site_select()     # pulling from NEON site selection
+    External.data <- site_select()     #pulling from NEON site selection
     select.analyte <- Analyte_select()
     select.analyteB <- Analyte_selectB()
     site.pick<- site_select()
+    
+    #deleting files tha were downloaded to computer
+    D<- ''
+    if (nchar(D) == 0) { D<- getwd() }
+    unlink(paste0(D,"/WaterWorld"), recursive = T)
+    
  
-    # External Lab data
+    #External Lab data
     analyte_data<- External.data %>%
       filter(analyte == select.analyte) %>%
       select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
@@ -80,6 +139,8 @@ server <- function(input, output, session) {
     d.plot<- d.plot%>% layout(
       title = "External Lab Analyte Concentrations", yaxis2 = ay,
       xaxis = list(title="Collect Date"))
+
+    
   })
   
   
@@ -88,25 +149,25 @@ server <- function(input, output, session) {
   })
   
   
-  # analyte compare plot2
+  #Analyte compare plot2
   plotInput2 <- reactive({
     
-    External.data <- site_select()     # pulling from NEON site selection
+    External.data <- site_select()     #pulling from NEON site selection
     select.analyte <- Analyte_select()
     select.analyteB <- Analyte_selectB()
     site.pick<- site_select()
     
-    # External Lab data
+    #External Lab data
     analyte_data<- External.data %>%
       filter(analyte == select.analyte) %>%
       select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
-      # mutate(collectDate = substr(collectDate,1,10)) %>% 
+      #mutate(collectDate = substr(collectDate,1,10)) %>% 
       arrange(collectDate)
     
     analyte_dataB<- External.data %>%
       filter(analyte == select.analyteB) %>%
       select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
-      # mutate(collectDate = substr(collectDate,1,10)) %>% 
+      #mutate(collectDate = substr(collectDate,1,10)) %>% 
       arrange(collectDate)
     
     analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
@@ -120,8 +181,8 @@ server <- function(input, output, session) {
       xlab(analytes$analyte.x[1])+
       ylab(analytes$analyte.y[1])
     
-    # anova()
-    # t.test(analytes$analyteConcentration.y,analytes$analyteConcentration.x)
+    #anova()
+    #t.test(analytes$analyteConcentration.y,analytes$analyteConcentration.x)
     
 
   })
@@ -167,24 +228,24 @@ server <- function(input, output, session) {
     analyte_data<- External.data %>%
       filter(analyte == select.analyte) %>%
       select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
-      # mutate(collectDate = substr(collectDate,1,10)) %>% 
+      #mutate(collectDate = substr(collectDate,1,10)) %>% 
       arrange(collectDate)
     
     analyte_dataB<- External.data %>%
       filter(analyte == select.analyteB) %>%
       select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
-      # mutate(collectDate = substr(collectDate,1,10)) %>% 
+      #mutate(collectDate = substr(collectDate,1,10)) %>% 
       arrange(collectDate)
     
     analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
     
-    # analyte_union<- union(analyte_data, analyte_dataB, by= 'collectDate')
-    # analytes1<- analyte_union %>% 
-    #   select(analyte, analyteConcentration)
-     
+    #analyte_union<- union(analyte_data, analyte_dataB, by= 'collectDate')
+    #analytes1<- analyte_union %>% 
+    #  select(analyte, analyteConcentration)
+    
     mdl_1<-lm(analyteConcentration.y ~ analyteConcentration.x,data = analytes)
     
-    # t.test(data= analytes1, analyteConcentration ~ analyte)
+    #t.test(data= analytes1, analyteConcentration ~ analyte)
     summary(mdl_1)
     
   })
@@ -199,59 +260,19 @@ server <- function(input, output, session) {
     analyte_data<- External.data %>%
       filter(analyte == select.analyte) %>%
       select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
-      # mutate(collectDate = substr(collectDate,1,10)) %>% 
+      #mutate(collectDate = substr(collectDate,1,10)) %>% 
       arrange(collectDate)
     
     analyte_dataB<- External.data %>%
       filter(analyte == select.analyteB) %>%
       select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
-      # mutate(collectDate = substr(collectDate,1,10)) %>% 
+      #mutate(collectDate = substr(collectDate,1,10)) %>% 
       arrange(collectDate)
     
     
     analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
     
   })
-  
-  output$predict <- renderText({
-    
-    #External.data <- site_select()
-    select.analyte <- Analyte_select()
-    f_data<- mlr()
-    
-    # define a task (what want to achieve) - Target is variable trying to predict
-    ANCTask <- makeRegrTask(data = f_data, target = select.analyte)
-    
-    # choose a Learner for model- listLearners("regr")$class
-    lm <- makeLearner('regr.glm', predict.type = 'response')
-
-    # must define task, learner, and train model
-    lmModel<- train(lm, ANCTask)
-    
-    # testing
-    # cross validation w/ 10 fold and 50 reps
-    
-    kFold<- makeResampleDesc("RepCV", fold = 10, reps = 40) # repeat cross validation ('RepCV')
-    kFoldCV<- resample(learner = lm, task = ANCTask, resampling = kFold)
-    
-    mse.test.mean<- kFoldCV$aggr
-    mse<- (1-mse.test.mean)*100
-    
-    if (mse > 0) {
-    results<- print(paste0(select.analyte, " can be predicted with present analyte data present within ~", round(mse, 2), "% of the time (data from all sites)"))
-    }
-    
-    if (mse < 0) {
-    results<- print(paste0(select.analyte, " CANNOT be predicted with present analyte data: ~", round(mse, 2), "% value returned"))
-    }
-    
-    results
-    #pred<- predictLearner(.learner = lm, .model = lmModel, .newdata = new.d)
-
-    #as_tibble(pred)  
-  
-  })
-  
   
   c_check<- reactive({
     
@@ -264,20 +285,20 @@ server <- function(input, output, session) {
     
     correlation <- data.table(Analyte=character(),Correlation=numeric())
 
-    ## checking first analyte
+    ##checking first analyte
     analyte_data<- External.data %>%
       filter(analyte == select.analyte) %>%
       select(analyte, analyteConcentration, collectDate) %>%
-      # mutate(collectDate = substr(collectDate,1,10)) %>% 
+      #mutate(collectDate = substr(collectDate,1,10)) %>% 
       arrange(collectDate)
-    # head(analyte_data)
+    #head(analyte_data)
     i=1
     while (i < length(alist)+1 ) {
       
       analyte_dataB<- External.data %>%
         filter(analyte == alist[i]) %>%
         select(analyte, analyteConcentration, collectDate) %>% 
-        # mutate(collectDate = substr(collectDate,1,10)) %>% 
+        #mutate(collectDate = substr(collectDate,1,10)) %>% 
         arrange(collectDate)
       
       analytes<- left_join(analyte_data, analyte_dataB, by= 'collectDate')
