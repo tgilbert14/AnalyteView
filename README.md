@@ -1,12 +1,18 @@
 
-# Analyte Comparison (v1.0)
+# Analyte Comparison (v2.0)
 
 #### Timothy Gilbert (tsgilbert90@gmail.com)
+## 2020-01-14
 
 ## About
 
-This Shiny app uses **National Ecological Observatory Network** [(NEON data portal)](https://data.neonscience.org/) to compare analyte concentrations using **Surface Water Chemistry** [(SWC)](https://data.neonscience.org/data-products/DP1.20093.001#about) sampling across various NEON [sites](https://www.neonscience.org/field-sites/field-sites-map) across the United States. More information on the data collection process can be found by clicking on [SWC](https://data.neonscience.org/data-products/DP1.20093.001#about) anywhere in this document. More information on the NEON project can by clicking [here](https://www.neonscience.org/)<!-- Two spaces apart -->
+This Shiny app uses **National Ecological Observatory Network** [(NEON data portal)](https://data.neonscience.org/) to compare analyte concentrations using **Surface Water Chemistry** [(SWC)](https://data.neonscience.org/data-products/DP1.20093.001#about) sampling across various NEON [sites](https://www.neonscience.org/field-sites/field-sites-map) across the United States. Start by selecting a date range, aquatic field site, and two analytes to examine, then click **Process Selection(s)**. More information on the data collection process can be found by clicking on [SWC](https://data.neonscience.org/data-products/DP1.20093.001#about) anywhere in this document. More information on the NEON project can by clicking [here](https://www.neonscience.org/).<!-- Two spaces apart -->
 
+## Comparison Plot
+
+This app allows you to select an Aquatic Field site, dates, and two analytes to compare, one '**main**' and another a secondary component. The data is pulled directly from the NEON database from the selected date range and plotted through time on a dual y-axis plot. The plot auto scales to allow for pattern detection between the various analytes. The plot is interactive and provides the exact sampling dates and concentrations.
+
+![Example plot for Sycamore Creek (D14 Tucson, AZ) for conductivity vs ANC concentrations](ExPlot.jpg)
 
 
 ## Correlation Report
@@ -65,16 +71,9 @@ alist<- c('ANC','Br','Ca','Cl','CO3','conductivity','DIC','DOC','F','Fe','HCO3',
 _Some sites may not have enough data points for certain analytes and do not produce a correlation result. Therefore the table will print 'Not enough data'_
 
 
-## Comparison Plot
-
-This app allows you to select an Aquatic Field site and two analytes to compare, one '**main**' and another to compare. The data is pulled from the NEON database from 2016-01 until most recent data and plotted through time on a dual y-axis plot. The plot auto scales to allow for pattern detection between various analytes.
-
-![Example plot for Sycamore Creek (D14 Tucson, AZ) for conductivity vs ANC concentrations](ExPlot.jpg)
-
-
 ## Regression Analysis
 
-The Analysis tab plots out the two selected analyte concentrations through linear regression (lm). Below that the summary is taken for the relationship between the two analytes and the P-value is printed out. Data points are paired by collection date of samples taken.
+The Analysis tab plots out the two selected analyte concentrations through linear regression (lm). Below that the summary is taken for the relationship between the two analytes and the R^2 and P-value is printed out. Data points are paired by collection date of samples taken.
 
 ```{r, eval=FALSE}
     # portion of code for plotting linear regression of two analytes
@@ -93,91 +92,3 @@ The Analysis tab plots out the two selected analyte concentrations through linea
 ```
 
 ![Example plot of linear regression of conductivity vs ANC concentrations](ExReg.jpg)
-
-_Due to some samples having replicates collected on the same day, plotting the same analyte by the exact same analyte may not yield a perfect linear line do to slight variation_
-
-
-## Data Table
-
-The Data Table tab shows the actual data being plotted for the Analysis Tab with collection dates included.
-
-![Example of data table produced from data being evaluated for Regression Analysis plot](ExTable.jpg)
-
-
-
-## MLR Model
-
-_IN PROGRESS:_ 
-<!-- three spaces -->
-
-The MLR(Machine Learning) Model tab uses the main analyte as its predictor value. It takes all Surface Water Chemistry data provided from all the sites and tries to predict the value for the 'main' analyte if all other analyte values were provided. This tab only shows the predicting value test results for now.
-
-```{r, eval=FALSE}
-    # defining a task (what want to achieve) - Target is variable trying to predict
-    ANCTask <- makeRegrTask(data = f_data, target = select.analyte)
-    # choose a Learner for model- regression
-    lm <- makeLearner('regr.glm', predict.type = 'response')
-    # must define task, learner, and train model
-    lmModel<- train(lm, ANCTask)
-    
-    # cross validation testing w/ 10 fold and 50 reps
-    kFold<- makeResampleDesc("RepCV", fold = 10, reps = 40) # repeat cross validation ('Re
-    kFoldCV<- resample(learner = lm, task = ANCTask, resampling = kFold)
-    # test results - % of how often would get value right
-    mse.test.mean<- kFoldCV$aggr
-    mse<- (1-mse.test.mean)*100
-    
-    if (mse > 0) {
-    results<- print(paste0(select.analyte, " can be predicted with present analyte data present within ~", round(mse, 2), "% of the time (data from all sites)"))
-    }
-    
-    if (mse < 0) {
-    results<- print(paste0(select.analyte, " CANNOT be predicted with present analyte data: ~", round(mse, 2), "% value returned"))
-    }
-    
-    results
-```
-
-_Improvements want to be made for this section. Prehaps changing the machine learning model to assign a water quality tag (Great, Good, Okay, Bad, Terrible) based on a water quality assessment_
-
-
-## Analytes Avaliable
-
-+ 'Acid Neutralizing Capacity(ANC)'='ANC'
-+ 'Bicarbonate Concentration(Br)'='Br'
-+ 'Calcium Concentration(Ca)'='Ca'
-+ 'Chlorine Concentration(Cl)'='Cl'
-+ 'Carbonate Concentration(C)'='CO3'
-+ 'Conductivity'='conductivity'
-+ 'Dissolved Inorganic Carbon(DIC)'='DIC'
-+ 'Dissolved Organic Carbon(DOC)'='DOC'
-+ 'Fluorine Concentration(F)'='F'
-+ 'Iron Concentration(Fe)'='Fe'
-+ 'Bicarbonate Concentration(HCO3)'='HCO3'
-+ 'Potassium Concentration(K)'='K'
-+ 'Magnesium Concentration(Mg)'='Mg'
-+ 'Manganese Concentration(Mn)'='Mn'
-+ 'Sodium Concentration(Na)'='Na'
-+ 'Ammonium Concentration(NH4)'='NH4 - N'
-+ 'Nitrogen Dioxide(NO2-N)'='NO2 - N'
-+ 'Nitrate(NO3+NO2-N)'='NO3+NO2 - N'
-+ 'Orthophosphate Concentration(Ortho-P)'='Ortho - P'
-+ 'pH(pH)'='pH','Silica Concentration(Si)'='Si'
-+ 'Sulfate Concentrations(SO4)'='SO4'
-+ 'Total Dissolved Nitrogen(TDN)'='TDN'
-+ 'Total Dissolved Phosphorus(TDP)'='TDP'
-+ 'Total Dissolved Solids(TDS)'='TDS'
-+ 'Total Nitrogen(TN)'='TN'
-+ 'Total Organic Carbon(TOC)'='TOC'
-+ 'Total Phosphorus(TP)'='TP'
-+ 'Total Particulate Carbon(TPC)'='TPC'
-+ 'Total Particulate Nitrogen(TPN)'='TPN'
-+ 'Total Suspended Solids(TSS)'='TSS'
-+ 'Dry Mass Suspended Solids(TSS-D)'='TSS - Dry Mass'
-+ 'UV Absorbance (250 nm)'
-+ 'UV Absorbance (280 nm)'
-
-
-## Limitations
-
-Samples must have same collection date to be compared so results are not comprehensive. Initial download can take a couple minutes, but once downloaded, app can seamlessly transition to new analyte comparisons for the same site. If new site is selected, app will have to initiate download process again.
