@@ -5,6 +5,9 @@ ui <- dashboardPage(skin = 'purple',
   dashboardSidebar(
       selectInput("Select", "Please type and select your site:",
                   choices = c("SYCA", "ARIK","BARC","BIGC","BLDE","BLUE","BLWA","CARI","COMO","CRAM","CUPE","FLNT","GUIL","HOPB","KING","LECO","LEWI","LIRO","MART","MAYF","MCDI","MCRA","OKSR","POSE","PRIN","PRLA","PRPO","REDB","SUGG","TECR","TOMB","TOOK","WALK","WLOU"), selected = F, multiple = T),
+      
+      dateRangeInput('dateRange',label='Select Date Range',start=Sys.Date()-21,end=Sys.Date()),
+      
       selectInput("Select_A", "Please select main analyte:",
                   choices = c('Acid Neutralizing Capacity(ANC)'='ANC','Bicarbonate Concentration(Br)'='Br','Calcium Concentration(Ca)'='Ca','Chlorine Concentration(Cl)'='Cl','Carbonate Concentration(C)'='CO3','Conductivity'='conductivity','Dissolved Inorganic Carbon(DIC)'='DIC','Dissolved Organic Carbon(DOC)'='DOC','Fluorine Concentration(F)'='F','Iron Concentration(Fe)'='Fe','Bicarbonate Concentration(HCO3)'='HCO3','Potassium Concentration(K)'='K','Magnesium Concentration(Mg)'='Mg','Manganese Concentration(Mn)'='Mn','Sodium Concentration(Na)'='Na','Ammonium Concentration(NH4)'='NH4 - N','Nitrogen Dioxide(NO2-N)'='NO2 - N','Nitrate(NO3+NO2-N)'='NO3+NO2 - N','Orthophosphate Concentration(Ortho-P)'='Ortho - P','pH(pH)'='pH','Silica Concentration(Si)'='Si','Sulfate Concentrations(SO4)'='SO4','Total Dissolved Nitrogen(TDN)'='TDN','Total Dissolved Phosphorus(TDP)'='TDP','Total Dissolved Solids(TDS)'='TDS','Total Nitrogen(TN)'='TN','Total Organic Carbon(TOC)'='TOC','Total Phosphorus(TP)'='TP','Total Particulate Carbon(TPC)'='TPC','Total Particulate Nitrogen(TPN)'='TPN','Total Suspended Solids(TSS)'='TSS','Dry Mass Suspended Solids(TSS-D)'='TSS - Dry Mass','UV Absorbance (250 nm)','UV Absorbance (280 nm)'), selected = F, multiple = F),
       selectInput("Select_B", "Please select secondary analyte:",
@@ -12,12 +15,12 @@ ui <- dashboardPage(skin = 'purple',
       submitButton("Process Selection(s)"),
     
       sidebarMenu(
-        menuItem('About',tabName='readme',icon=icon('info-circle')),
-        menuItem('Correlation Report',tabName = 'C',icon=icon('newspaper')),
         menuItem('Comparison Plot',tabName = 'E',icon=icon('chart-area')),
+        menuItem('Correlation Report',tabName = 'C',icon=icon('newspaper')),
         menuItem('Regression Analysis',tabName = 'D',icon=icon('laptop-code')),
         menuItem('Data Table',tabName = 'dtable',icon=icon('table')),
-        menuItem('MLR Model',tabName = 'model', icon=icon('robot'))
+        menuItem('MLR Model',tabName = 'model', icon=icon('robot')),
+        menuItem('About',tabName='readme',icon=icon('info-circle'))
       )
     ),
     

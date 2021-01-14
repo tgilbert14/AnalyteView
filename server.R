@@ -6,9 +6,19 @@ server <- function(input, output, session) {
     site.pick<- input$Select
     req(input$Select)
     
+    
+    start_d<-format(input$dateRange[1]) # turned off for testing - turnback on later
+    end_d<-format(input$dateRange[2])  #turned off for testing - turnback on later
+    
     dpid <- "DP1.20093.001"   # surface Water Chemistry DPID
-    data.swc<- loadByProduct(dpid, site = site.pick, startdate = '2016-01', check.size = F)
-
+    
+    data.swc<- loadByProduct(dpid, site = site.pick, startdate = start_d, 
+                             enddate = end_d, check.size = F)
+    
+    # #testing code...
+    # data.swc<- loadByProduct(dpID = "DP1.20093.001", site = 'SYCA', startdate = "2018-01", 
+    #                          enddate = "2019-05", check.size = F)
+    
     External.data<- data.swc$swc_externalLabDataByAnalyte
     
   }) # end of data download
@@ -35,6 +45,10 @@ server <- function(input, output, session) {
     select.analyte <- Analyte_select()
     select.analyteB <- Analyte_selectB()
     site.pick<- site_select()
+    
+    # #testing code
+    # select.analyte<- 'ANC'
+    # select.analyteB<- 'Cl'
  
     # External Lab data
     analyte_data<- External.data %>%
@@ -80,6 +94,7 @@ server <- function(input, output, session) {
     d.plot<- d.plot%>% layout(
       title = "External Lab Analyte Concentrations", yaxis2 = ay,
       xaxis = list(title="Collect Date"))
+    
   })
   
   
@@ -119,10 +134,6 @@ server <- function(input, output, session) {
       ggtitle(paste0(analytes$analyte.y[1],' vs ',analytes$analyte.x[1]))+
       xlab(analytes$analyte.x[1])+
       ylab(analytes$analyte.y[1])
-    
-    # anova()
-    # t.test(analytes$analyteConcentration.y,analytes$analyteConcentration.x)
-    
 
   })
   

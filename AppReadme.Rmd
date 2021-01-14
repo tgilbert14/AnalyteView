@@ -1,7 +1,7 @@
 ---
-title: "Analyte Comparison App"
+title: "Analyte Comparison App (v2.0)"
 author: "Timothy Gilbert [tsgilbert90@gmail.com]"
-date: "10/15/2020"
+date: "Updated 1/14/2020"
 output: 
   html_document: 
     toc: yes
@@ -10,7 +10,13 @@ output:
 
 ## About
 
-This Shiny app uses **National Ecological Observatory Network** [(NEON data portal)](https://data.neonscience.org/) to compare analyte concentrations using **Surface Water Chemistry** [(SWC)](https://data.neonscience.org/data-products/DP1.20093.001#about) sampling across various NEON [sites](https://www.neonscience.org/field-sites/field-sites-map) across the United States. More information on the data collection process can be found by clicking on [SWC](https://data.neonscience.org/data-products/DP1.20093.001#about) anywhere in this document. More information on the NEON project can by clicking [here](https://www.neonscience.org/)<!-- Two spaces apart -->
+This Shiny app uses **National Ecological Observatory Network** [(NEON data portal)](https://data.neonscience.org/) to compare analyte concentrations using **Surface Water Chemistry** [(SWC)](https://data.neonscience.org/data-products/DP1.20093.001#about) sampling across various NEON [sites](https://www.neonscience.org/field-sites/field-sites-map) across the United States. Start by selecting a date range, aquatic field site, and two analytes to examine, then click **Process Selection(s)**. More information on the data collection process can be found by clicking on [SWC](https://data.neonscience.org/data-products/DP1.20093.001#about) anywhere in this document. More information on the NEON project can by clicking [here](https://www.neonscience.org/).<!-- Two spaces apart -->
+
+## Comparison Plot
+
+This app allows you to select an Aquatic Field site, dates, and two analytes to compare, one '**main**' and another a secondary component. The data is pulled directly from the NEON database from the selected date range and plotted through time on a dual y-axis plot. The plot auto scales to allow for pattern detection between the various analytes. The plot is interactive and provides the exact sampling dates and concentrations.
+
+![Example plot for Sycamore Creek (D14 Tucson, AZ) for conductivity vs ANC concentrations](ExPlot.jpg)
 
 
 ## Correlation Report
@@ -69,16 +75,9 @@ alist<- c('ANC','Br','Ca','Cl','CO3','conductivity','DIC','DOC','F','Fe','HCO3',
 _Some sites may not have enough data points for certain analytes and do not produce a correlation result. Therefore the table will print 'Not enough data'_
 
 
-## Comparison Plot
-
-This app allows you to select an Aquatic Field site and two analytes to compare, one '**main**' and another to compare. The data is pulled from the NEON database from 2016-01 until most recent data and plotted through time on a dual y-axis plot. The plot auto scales to allow for pattern detection between various analytes.
-
-![Example plot for Sycamore Creek (D14 Tucson, AZ) for conductivity vs ANC concentrations](ExPlot.jpg)
-
-
 ## Regression Analysis
 
-The Analysis tab plots out the two selected analyte concentrations through linear regression (lm). Below that the summary is taken for the relationship between the two analytes and the P-value is printed out. Data points are paired by collection date of samples taken.
+The Analysis tab plots out the two selected analyte concentrations through linear regression (lm). Below that the summary is taken for the relationship between the two analytes and the R^2 and P-value is printed out. Data points are paired by collection date of samples taken.
 
 ```{r, eval=FALSE}
     # portion of code for plotting linear regression of two analytes
@@ -114,7 +113,7 @@ The Data Table tab shows the actual data being plotted for the Analysis Tab with
 _IN PROGRESS:_ 
 <!-- three spaces -->
 
-The MLR(Machine Learning) Model tab uses the main analyte as its predictor value. It takes all Surface Water Chemistry data provided from all the sites and tries to predict the value for the 'main' analyte if all other analyte values were provided. This tab only shows the predicting value test results for now.
+The MLR(Machine Learning) Model tab uses the main analyte as its predictor value. It takes all Surface Water Chemistry data provided from **all the sites** up to 2020-01 as of now and tries to predict the value for the 'main' analyte if all other analyte values were provided. This tab only shows the predicting value test results for now.
 
 ```{r, eval=FALSE}
     # defining a task (what want to achieve) - Target is variable trying to predict
