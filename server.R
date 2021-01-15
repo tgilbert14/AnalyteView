@@ -48,9 +48,9 @@ server <- function(input, output, session) {
     
     # #testing code
     # select.analyte<- 'ANC'
-    # select.analyteB<- 'Cl'
- 
+    # select.analyteB<- 'specificConductance'
     # External Lab data
+    
     analyte_data<- External.data %>%
       filter(analyte == select.analyte) %>%
       select(analyte, analyteConcentration, analyteUnits, collectDate) %>% 
