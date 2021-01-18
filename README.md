@@ -92,3 +92,101 @@ The Analysis tab plots out the two selected analyte concentrations through linea
 ```
 
 ![Example plot of linear regression of conductivity vs ANC concentrations](ExReg.jpg)
+
+
+## Data Table
+
+The Data Table tab shows the actual data being plotted for the Analysis Tab with collection dates included.
+
+![Example of data table produced from data being evaluated for Regression Analysis plot](ExTable.jpg)
+
+
+
+## MLR Model
+
+_IN PROGRESS:_ 
+<!-- three spaces -->
+
+The MLR(Machine Learning) Model tab uses the main analyte as its predictor value. It takes all Surface Water Chemistry data provided from **all the sites** up to 2020-01 as of now and tries to predict the value for the 'main' analyte if all other analyte values were provided. This tab only shows the predicting value test results for now.
+
+```{r, eval=FALSE}
+    # defining a task (what want to achieve) - Target is variable trying to predict
+    ANCTask <- makeRegrTask(data = f_data, target = select.analyte)
+    # choose a Learner for model- regression
+    lm <- makeLearner('regr.glm', predict.type = 'response')
+    # must define task, learner, and train model
+    lmModel<- train(lm, ANCTask)
+    
+    # cross validation testing w/ 10 fold and 50 reps
+    kFold<- makeResampleDesc("RepCV", fold = 10, reps = 40) # repeat cross validation ('Re
+    kFoldCV<- resample(learner = lm, task = ANCTask, resampling = kFold)
+    # test results - % of how often would get value right
+    mse.test.mean<- kFoldCV$aggr
+    mse<- (1-mse.test.mean)*100
+    
+    if (mse > 0) {
+    results<- print(paste0(select.analyte, " can be predicted with present analyte data present within ~", round(mse, 2), "% of the time (data from all sites)"))
+    }
+    
+    if (mse < 0) {
+    results<- print(paste0(select.analyte, " CANNOT be predicted with present analyte data: ~", round(mse, 2), "% value returned"))
+    }
+    
+    results
+```
+
+_Improvements want to be made for this section. Prehaps changing the machine learning model to assign a water quality tag (Great, Good, Okay, Bad, Terrible) based on a water quality assessment_
+
+
+## Analytes Avaliable
+
++ 'Acid Neutralizing Capacity(ANC)'='ANC'
++ 'Bicarbonate Concentration(Br)'='Br'
++ 'Calcium Concentration(Ca)'='Ca'
++ 'Chlorine Concentration(Cl)'='Cl'
++ 'Carbonate Concentration(C)'='CO3'
++ 'Conductivity'='conductivity'
++ 'Dissolved Inorganic Carbon(DIC)'='DIC'
++ 'Dissolved Organic Carbon(DOC)'='DOC'
++ 'Fluorine Concentration(F)'='F'
++ 'Iron Concentration(Fe)'='Fe'
++ 'Bicarbonate Concentration(HCO3)'='HCO3'
++ 'Potassium Concentration(K)'='K'
++ 'Magnesium Concentration(Mg)'='Mg'
++ 'Manganese Concentration(Mn)'='Mn'
++ 'Sodium Concentration(Na)'='Na'
++ 'Ammonium Concentration(NH4)'='NH4 - N'
++ 'Nitrogen Dioxide(NO2-N)'='NO2 - N'
++ 'Nitrate(NO3+NO2-N)'='NO3+NO2 - N'
++ 'Orthophosphate Concentration(Ortho-P)'='Ortho - P'
++ 'pH(pH)'='pH','Silica Concentration(Si)'='Si'
++ 'Sulfate Concentrations(SO4)'='SO4'
++ 'Total Dissolved Nitrogen(TDN)'='TDN'
++ 'Total Dissolved Phosphorus(TDP)'='TDP'
++ 'Total Dissolved Solids(TDS)'='TDS'
++ 'Total Nitrogen(TN)'='TN'
++ 'Total Organic Carbon(TOC)'='TOC'
++ 'Total Phosphorus(TP)'='TP'
++ 'Total Particulate Carbon(TPC)'='TPC'
++ 'Total Particulate Nitrogen(TPN)'='TPN'
++ 'Total Suspended Solids(TSS)'='TSS'
++ 'Dry Mass Suspended Solids(TSS-D)'='TSS - Dry Mass'
++ 'UV Absorbance (250 nm)'
++ 'UV Absorbance (280 nm)'
+
+
+## Limitations
+
+Samples must have same collection date to be compared so results are not comprehensive. Initial download can take a couple minutes, but once downloaded, app can seamlessly transition to new analyte comparisons for the same site. If new site is selected, app will have to initiate download process again.
+
+## Citation
+
+Data gathered through use of this app utilizes code from the neonUtilities package as cited below...
+
+Claire Lunch, Christine Laney, Nathan Mietkiewicz, Eric Sokol, Kaelin
+  Cawley and NEON (National Ecological Observatory Network) (2021).
+  neonUtilities: Utilities for Working with NEON Data.
+  R package version
+  1.3.9.
+  https://CRAN.R-project.org/package=neonUtilities
+
