@@ -3,7 +3,7 @@
 
 #### Timothy Gilbert (tsgilbert90@gmail.com)
 ## 2020-01-14
-## App
+## Hosting
 The Application is hosted  is hosted [here](https://t-lama.shinyapps.io/AnalyteCompareApp/) for ease of use. Please contact through email with any issues, concerns, or input for making the application better.
 ## About
 This Shiny app uses **National Ecological Observatory Network** [(NEON data portal)](https://data.neonscience.org/) to compare analyte concentrations using **Surface Water Chemistry** [(SWC)](https://data.neonscience.org/data-products/DP1.20093.001#about) sampling across various NEON [sites](https://www.neonscience.org/field-sites/field-sites-map) across the United States. Start by selecting a date range, aquatic field site, and two analytes to examine, then click **Process Selection(s)**. More information on the data collection process can be found by clicking on [SWC](https://data.neonscience.org/data-products/DP1.20093.001#about) anywhere in this document. More information on the NEON project can by clicking [here](https://www.neonscience.org/).<!-- Two spaces apart -->
