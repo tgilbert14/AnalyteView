@@ -17,7 +17,7 @@ This app allows you to select an Aquatic Field site, dates, and two analytes to 
 
 ## Correlation Report
 
-The Correlation Report tab uses the '**main**' analyte chosen and calculates correlation compared to every other analyte independently. This is meant to help find patterns at each site where two analytes are correlated to each other. *Some site do not provide a value. may because of lack of data or bad data, still under investigation. Will provide update in future.
+The Correlation Report tab uses the '**main**' analyte chosen and calculates correlation compared to every other analyte independently. This is meant to help find patterns at each site where two analytes are correlated to each other. *Some site do not provide a value. It may be because of lack of data or bad data, still under investigation. Will provide update in future.
 
 ![Example table for Sycamore Creek (D14 Tucson, AZ) for correlation of conductivity compared to other measured analytes](ExCor.jpg)
 
