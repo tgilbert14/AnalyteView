@@ -10,14 +10,14 @@ This Shiny app uses **National Ecological Observatory Network** [(NEON data port
 
 ## Comparison Plot
 
-This app allows you to select an Aquatic Field site, dates, and two analytes to compare, one '**main**' and another a secondary component. The data is pulled directly from the NEON database from the selected date range and plotted through time on a dual y-axis plot. The plot auto scales to allow for pattern detection between the various analytes. The plot is interactive and provides the exact sampling dates and concentrations.
+This app allows you to select an Aquatic Field site, dates, and two analytes to compare, one '**main**' and another a secondary component. The data is pulled directly from the NEON database from the selected date range and plotted through time on a dual y-axis plot. The plot auto scales to allow for pattern detection between the various analytes. The plot is interactive and provides the exact sampling dates and concentrations when hovered over individual points.
 
 ![Example plot for Sycamore Creek (D14 Tucson, AZ) for conductivity vs ANC concentrations](ExPlot.jpg)
 
 
 ## Correlation Report
 
-The Correlation Report tab uses the '**main**' analyte chosen and calculates correlation compared to every other analyte independently.
+The Correlation Report tab uses the '**main**' analyte chosen and calculates correlation compared to every other analyte independently. This is meant to help find patterns at each site where two analytes are correlated to each other. *Some site do not provide a value. may because of lack of data or bad data, still under investigation. Will provide update in future.
 
 ![Example table for Sycamore Creek (D14 Tucson, AZ) for correlation of conductivity compared to other measured analytes](ExCor.jpg)
 
